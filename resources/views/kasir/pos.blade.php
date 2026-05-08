@@ -138,7 +138,35 @@
                         <button @click="selectedPartner = null; partnerSearch = ''"
                             class="text-red-400 hover:text-red-600">✕</button>
                     </div>
+                    {{-- Visit Selection --}}
+<div x-show="selectedPartner && partnerVisits.length > 0"
+    class="mt-3">
+
+    <label class="block text-[11px] font-bold uppercase tracking-wide text-gray-400 mb-1">
+        Pilih Kunjungan
+    </label>
+
+    <select x-model="selectedVisit"
+        class="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-xs">
+
+        <option value="">
+            Pilih Kunjungan
+        </option>
+
+        <template x-for="visit in partnerVisits" :key="visit.id">
+
+            <option :value="visit.id"
+                x-text="`${visit.visit_code} - ${visit.group_description ?? 'Tanpa Deskripsi'}`">
+            </option>
+
+        </template>
+
+    </select>
+
+</div>
                 </div>
+
+
 
                 {{-- Member Search --}}
                 <div x-show="customerType === 'member'" x-transition class="mt-2">
@@ -531,6 +559,9 @@
                     partnerResults: [],
                     selectedPartner: null,
 
+                    partnerVisits: [],
+                    selectedVisit: null,
+
                     // Member
                     memberSearch: '',
                     memberResults: [],
@@ -704,6 +735,24 @@
                         this.partnerResults = await res.json();
                     },
 
+                    async fetchPartnerVisits(partnerId) {
+
+                        try {
+
+                            const response = await fetch(
+                                `/api/partner-visits?partner_id=${partnerId}`
+                            );
+
+                            this.partnerVisits = await response.json();
+
+                        } catch (error) {
+
+                            console.error(error);
+
+                        }
+
+                    },
+
                     selectPartner(partner) {
                         this.selectedPartner = partner;
                         this.partnerSearch = partner.name;
@@ -829,6 +878,7 @@
                             customer_type: this.customerType,
                             customer_name: this.customerName || null,
                             partner_id: this.selectedPartner?.id || null,
+                            partner_visit_id: this.selectedVisit || null,
                             member_id: this.selectedMember?.id || null,
                             points_redeemed: this.pointsToRedeem,
                             payment_method: this.paymentMethod,

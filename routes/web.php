@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\CommissionController;
+use App\Http\Controllers\Admin\VisitController;
 
 // Temporary: akses langsung tanpa login
 Route::get('/', function () {
@@ -20,28 +21,51 @@ Route::get('/dashboard/kasir', [TransactionController::class, 'index'])->name('d
 Route::get('/dashboard/security', [DashboardController::class, 'security'])->name('dashboard.security');
 
 Route::prefix('admin')->name('admin.')->group(function () {
+
     Route::resource('products', ProductController::class);
     Route::post('products/{product}/restock', [ProductController::class, 'restock'])->name('products.restock');
     Route::post('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
+
     Route::resource('partners', PartnerController::class);
     Route::post('partners/{partner}/commission', [PartnerController::class, 'updateCommission'])->name('partners.commission');
-    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
-    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])
-        ->name('transactions.delete');
+
     Route::resource('members', MemberController::class);
     Route::post('members/{member}/adjust-points', [MemberController::class, 'adjustPoints'])->name('members.adjust-points');
-    Route::get('/commissions', [CommissionController::class, 'index'])->name('commissions.index');
-    Route::post('/commissions/{commission}/paid', [CommissionController::class, 'markPaid'])
-    ->name('commissions.paid');
-    Route::post('/commissions/{commission}/update-rate',
-    [CommissionController::class, 'updateRate'])
-    ->name('commissions.update-rate');
-    Route::get('/commissions/{commission}/pdf',
-    [CommissionController::class, 'downloadPdf'])
-    ->name('commissions.pdf');
+
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+
+    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.delete');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Visits
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('visits', [VisitController::class, 'index'])->name('visits.index');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Commissions
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('commissions', [CommissionController::class, 'index'])->name('commissions.index');
+
+    Route::post('commissions/{commission}/paid', [CommissionController::class, 'markPaid'])->name('commissions.paid');
+
+    Route::post('commissions/{commission}/update-rate', [CommissionController::class, 'updateRate'])->name('commissions.update-rate');
+
+    Route::get('commissions/{commission}/pdf', [CommissionController::class, 'downloadPdf'])->name('commissions.pdf');
+
+    Route::post('commissions/{commission}/update-detail', [CommissionController::class, 'updateDetail'])->name('commissions.update-detail');
+
+    Route::post('commissions/{commission}/attach-guide', [CommissionController::class, 'attachGuide'])->name('commissions.attach-guide');
+
 });
 Route::get('/api/currency-rates', [CurrencyController::class, 'getRates'])->name('currency.rates');
+Route::get('/api/partner-visits', [TransactionController::class, 'partnerVisits']);
 
 Route::prefix('kasir')->name('kasir.')->group(function () {
     Route::get('/', [TransactionController::class, 'index'])->name('pos');
@@ -53,5 +77,11 @@ Route::prefix('kasir')->name('kasir.')->group(function () {
     Route::post('/create-member', [TransactionController::class, 'storeMember']);
 });
 
+Route::post('/security/visits/store',
+    [DashboardController::class, 'storeVisit'])
+    ->name('security.visits.store');
+Route::post('/security/partner/store',
+    [DashboardController::class, 'storePartner'])
+    ->name('security.partner.store');
 
 

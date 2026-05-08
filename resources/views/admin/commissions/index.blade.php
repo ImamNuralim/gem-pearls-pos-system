@@ -128,6 +128,13 @@
                                 <td class="p-4">
 
                                     <div class="flex items-center gap-2">
+                                        <button
+                                            onclick="document.getElementById('detail-modal-{{ $commission->id }}').classList.remove('hidden')"
+                                            class="px-3 py-2 rounded-xl bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition">
+
+                                            Detail
+
+                                        </button>
 
                                         @if ($commission->status === 'unpaid')
                                             <form action="{{ route('admin.commissions.paid', $commission) }}"
@@ -158,6 +165,276 @@
                                 </td>
 
                             </tr>
+
+                            <div id="detail-modal-{{ $commission->id }}"
+                                class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+
+                                <div class="bg-white rounded-2xl w-full max-w-2xl p-6 relative">
+
+                                    {{-- Close --}}
+                                    <button
+                                        onclick="document.getElementById('detail-modal-{{ $commission->id }}').classList.add('hidden')"
+                                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+
+                                        ✕
+
+                                    </button>
+
+                                    <h2 class="text-xl font-bold text-gray-800 mb-6">
+                                        Detail Komisi
+                                    </h2>
+
+                                    {{-- Visit Information --}}
+                                    <div class="space-y-5">
+
+                                        <div class="border-b border-gray-100 pb-4">
+
+                                            <h3 class="text-lg font-bold text-gray-800">
+                                                Informasi Kunjungan
+                                            </h3>
+
+                                            <p class="text-sm text-gray-400">
+                                                Data yang diinput oleh security
+                                            </p>
+
+                                        </div>
+
+                                        {{-- Grid --}}
+                                        <div class="grid grid-cols-2 gap-5">
+
+                                            {{-- Partner --}}
+                                            <div>
+
+                                                <label class="text-xs font-bold uppercase tracking-wide text-gray-400">
+                                                    Partner
+                                                </label>
+
+                                                <div class="mt-1 text-sm font-semibold text-gray-800">
+
+                                                    {{ $commission->partner->name ?? '-' }}
+
+                                                </div>
+
+                                            </div>
+
+                                            {{-- Sticker --}}
+                                            <div>
+
+                                                <label class="text-xs font-bold uppercase tracking-wide text-gray-400">
+                                                    No Sticker
+                                                </label>
+
+                                                <div class="mt-1 text-sm font-semibold text-gray-800">
+
+                                                    {{ $commission->sticker_number ?? '-' }}
+
+                                                </div>
+
+                                            </div>
+
+                                            {{-- Visit Date --}}
+                                            <div>
+
+                                                <label class="text-xs font-bold uppercase tracking-wide text-gray-400">
+                                                    Tanggal Kunjungan
+                                                </label>
+
+                                                <div class="mt-1 text-sm font-semibold text-gray-800">
+
+                                                    {{ $commission->visit_date?->format('d M Y') ?? '-' }}
+
+                                                </div>
+
+                                            </div>
+
+                                            {{-- Deadline --}}
+                                            <div>
+
+                                                <label class="text-xs font-bold uppercase tracking-wide text-gray-400">
+                                                    Deadline Pengambilan
+                                                </label>
+
+                                                <div class="mt-1 text-sm font-semibold text-gray-800">
+
+                                                    {{ $commission->pickup_deadline?->format('d M Y') ?? '-' }}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        {{-- Description --}}
+                                        <div>
+
+                                            <label class="text-xs font-bold uppercase tracking-wide text-gray-400">
+                                                Deskripsi Rombongan
+                                            </label>
+
+                                            <div class="mt-1 text-sm text-gray-700 leading-relaxed">
+
+                                                {{ $commission->group_description ?? '-' }}
+
+                                            </div>
+
+                                        </div>
+
+                                        {{-- Vehicle Notes --}}
+                                        <div>
+
+                                            <label class="text-xs font-bold uppercase tracking-wide text-gray-400">
+                                                Keterangan Kendaraan
+                                            </label>
+
+                                            <div class="mt-1 text-sm text-gray-700 leading-relaxed">
+
+                                                {{ $commission->vehicle_notes ?? '-' }}
+
+                                            </div>
+
+                                        </div>
+                                        {{-- Vehicles --}}
+                                        <div>
+
+                                            <label class="text-xs font-bold uppercase tracking-wide text-gray-400">
+                                                Daftar Kendaraan
+                                            </label>
+
+                                            <div class="mt-3 space-y-2">
+
+                                                @forelse($commission->vehicles as $vehicle)
+                                                    <div
+                                                        class="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-100 bg-gray-50">
+
+                                                        <div>
+
+                                                            <div class="font-semibold text-gray-800">
+
+                                                                {{ $vehicle->plate_number }}
+
+                                                            </div>
+
+                                                            <div class="text-xs text-gray-500">
+
+                                                                {{ $vehicle->vehicle_type ?? '-' }}
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div
+                                                            class="px-2 py-1 rounded-lg bg-blue-100 text-blue-600 text-xs font-bold">
+
+                                                            Kendaraan
+
+                                                        </div>
+
+                                                    </div>
+
+                                                @empty
+
+                                                    <div class="text-sm text-gray-400">
+                                                        Belum ada kendaraan
+                                                    </div>
+                                                @endforelse
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <hr class="my-6">
+
+                                    {{-- Guide / Driver --}}
+                                    <div>
+
+                                        <h3 class="text-lg font-bold text-gray-800 mb-4">
+                                            Guide / Driver
+                                        </h3>
+
+                                        {{-- Attach Guide --}}
+                                        <form action="{{ route('admin.commissions.attach-guide', $commission) }}"
+                                            method="POST" class="flex gap-2 mb-4">
+
+                                            @csrf
+
+                                            <select name="guide_id"
+                                                class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200">
+
+                                                <option value="">
+                                                    Pilih Guide / Driver
+                                                </option>
+
+                                                @foreach (\App\Models\Guide::orderBy('name')->get() as $guide)
+                                                    <option value="{{ $guide->id }}">
+
+                                                        {{ $guide->guide_code }}
+                                                        —
+                                                        {{ $guide->name }}
+                                                        ({{ $guide->total_visits }}x trip)
+                                                    </option>
+                                                @endforeach
+
+                                            </select>
+
+                                            <button type="submit"
+                                                class="px-4 py-2.5 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition">
+
+                                                Tambah
+
+                                            </button>
+
+                                        </form>
+
+                                        {{-- Guide List --}}
+                                        <div class="space-y-2">
+
+                                            @forelse($commission->guides as $guide)
+                                                <div
+                                                    class="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-100 bg-gray-50">
+
+                                                    <div>
+
+                                                        <div class="font-semibold text-gray-800">
+
+                                                            {{ $guide->guide_code }}
+                                                            —
+                                                            {{ $guide->name }}
+
+                                                        </div>
+
+                                                        <div class="text-xs text-gray-500">
+
+                                                            {{ $guide->phone }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div
+                                                        class="text-xs px-2 py-1 rounded-lg bg-amber-100 text-amber-600 font-semibold">
+
+                                                        {{ $guide->total_visits }}x Trip
+
+                                                    </div>
+
+                                                </div>
+
+                                            @empty
+
+                                                <div class="text-sm text-gray-400">
+                                                    Belum ada guide
+                                                </div>
+                                            @endforelse
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                         @empty
 

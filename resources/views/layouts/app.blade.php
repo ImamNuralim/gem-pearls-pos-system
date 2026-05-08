@@ -87,6 +87,51 @@
                                         d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                                 </svg></span> Laporan
                         </a>
+                        <a href="{{ route('admin.visits.index') }}"
+    class="flex items-center gap-3 px-4 py-3 rounded-xl transition
+    {{ request()->routeIs('admin.visits.*')
+        ? 'bg-amber-500 text-white shadow-lg'
+        : 'text-gray-600 hover:bg-gray-100' }}">
+
+    <span>🚍</span>
+
+    <span class="font-medium">
+        Kunjungan Partner
+    </span>
+
+</a>
+                        <a href="{{ route('admin.commissions.index') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-amber-50 hover:text-amber-700 transition {{ request()->routeIs('admin.commissions*') ? 'bg-amber-50 text-amber-700' : '' }}">
+
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 8.25v-1.5m0 1.5c-1.036 0-1.875.84-1.875 1.875S10.964 12 12 12s1.875.84 1.875 1.875S13.036 15.75 12 15.75m0-7.5c1.036 0 1.875.84 1.875 1.875M12 15.75v1.5m-7.5-6h15" />
+
+                                </svg>
+                            </span>
+
+                            Komisi
+
+                        </a>
+                        <a href="#"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-amber-50 hover:text-amber-700 transition">
+
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+
+                                </svg>
+                            </span>
+
+                            Guide / Driver
+
+                        </a>
                     </div>
                 @endif
 

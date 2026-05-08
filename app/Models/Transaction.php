@@ -65,4 +65,8 @@ class Transaction extends Model
     {
         return 'Rp ' . number_format($this->total, 0, ',', '.');
     }
+    public function visit()
+{
+    return $this->belongsTo(\App\Models\PartnerVisit::class, 'partner_visit_id');
+}
 }
