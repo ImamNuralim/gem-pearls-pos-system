@@ -7,32 +7,30 @@ use Illuminate\Database\Eloquent\Model;
 class PartnerVisit extends Model
 {
     protected $fillable = [
-
         'partner_id',
-
         'visit_code',
-
+        'visit_type',
         'sticker_number',
-
         'group_description',
-
         'visit_date',
-
         'pickup_deadline',
-
         'vehicle_notes',
-
+        'vehicle_description',
         'status',
-
+        'total_sales'
     ];
 
     protected $casts = [
-
         'visit_date' => 'date',
-
         'pickup_deadline' => 'date',
-
     ];
+
+    public static function generateVisitCode(): string
+    {
+        $last = self::orderBy('id', 'desc')->first();
+        $nextNumber = $last ? (intval(substr($last->visit_code, 4)) + 1) : 1;
+        return 'VIS-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
 
     public function partner()
     {
@@ -41,10 +39,20 @@ class PartnerVisit extends Model
 
     public function vehicles()
     {
-        return $this->hasMany(CommissionVehicle::class);
+        return $this->hasMany(CommissionVehicle::class, 'partner_visit_id');
     }
+
     public function transactions()
+    {
+        return $this->hasMany(\App\Models\Transaction::class);
+    }
+
+    public function guides()
+    {
+        return $this->belongsToMany(Guide::class, 'partner_visit_guides');
+    }
+    public function commissions()
 {
-    return $this->hasMany(\App\Models\Transaction::class);
+    return $this->hasMany(\App\Models\Commission::class, 'partner_visit_id');
 }
 }

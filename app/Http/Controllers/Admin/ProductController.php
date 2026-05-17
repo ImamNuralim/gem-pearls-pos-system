@@ -53,9 +53,9 @@ class ProductController extends Controller
 
         // Search
         if ($request->search) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('sku', 'like', "%{$request->search}%");
+                    ->orWhere('sku', 'like', "%{$request->search}%");
             });
         }
 
@@ -110,10 +110,22 @@ class ProductController extends Controller
         // Upload foto
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photo) {
-                $path = $photo->store('products', 'public');
+                $image = \Intervention\Image\ImageManager::withDriver(\Intervention\Image\Drivers\Gd\Driver::class)->read($photo);
+
+                // Resize kalau lebih dari 1200px
+                if ($image->width() > 1200) {
+                    $image->scale(width: 1200);
+                }
+
+                // Encode ke jpg dengan quality 80 (sekitar 400-500kb)
+                $encoded = $image->toJpeg(80);
+
+                $filename = 'products/' . uniqid() . '.jpg';
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $encoded);
+
                 ProductPhoto::create([
                     'product_id' => $product->id,
-                    'photo_path' => $path,
+                    'photo_path' => $filename,
                     'is_primary' => $index === 0,
                 ]);
             }
@@ -155,12 +167,23 @@ class ProductController extends Controller
         // Upload foto baru
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photo) {
-                $path = $photo->store('products', 'public');
-                $isPrimary = $index === 0 && $product->photos()->count() === 0;
+                $image = \Intervention\Image\ImageManager::withDriver(\Intervention\Image\Drivers\Gd\Driver::class)->read($photo);
+
+                // Resize kalau lebih dari 1200px
+                if ($image->width() > 1200) {
+                    $image->scale(width: 1200);
+                }
+
+                // Encode ke jpg dengan quality 80 (sekitar 400-500kb)
+                $encoded = $image->toJpeg(80);
+
+                $filename = 'products/' . uniqid() . '.jpg';
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $encoded);
+
                 ProductPhoto::create([
                     'product_id' => $product->id,
-                    'photo_path' => $path,
-                    'is_primary' => $isPrimary,
+                    'photo_path' => $filename,
+                    'is_primary' => $index === 0,
                 ]);
             }
         }

@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Gem Pearls POS') }} — @yield('title')</title>
+    <title>{{ config('app.name', 'Gem Pearls') }} - @yield('title')</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo-inv.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
     [x-cloak] { display: none !important; }
 </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased min-h-screen">
+<body class="bg-slate-50 antialiased min-h-screen" style="font-family: 'Poppins', sans-serif;">
 
     {{-- Navbar --}}
     <nav class="bg-white border-b border-gray-200 shadow-sm px-6 py-3 flex items-center justify-between sticky top-0 z-50">

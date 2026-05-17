@@ -8,16 +8,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Transaction extends Model
 {
-    use HasFactory, SoftDeletes, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'invoice_number', 'user_id', 'customer_type',
-        'customer_name', 'partner_id', 'member_id',
-        'subtotal', 'points_redeemed', 'points_discount',
-        'total', 'is_negotiated', 'payment_method',
-        'currency_code', 'currency_rate', 'admin_fee',
-        'amount_paid', 'change_amount', 'customer_phone', 'status'
-    ];
+    'invoice_number', 'user_id', 'customer_type',
+    'customer_name', 'partner_id', 'partner_visit_id', 'member_id',
+    'subtotal', 'points_redeemed', 'points_discount',
+    'total', 'is_negotiated', 'payment_method',
+    'currency_code', 'currency_rate', 'admin_fee',
+    'amount_paid', 'change_amount', 'customer_phone', 'status', 'is_printed'
+];
 
     protected $casts = [
         'is_negotiated' => 'boolean',

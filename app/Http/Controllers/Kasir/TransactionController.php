@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Kasir;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Services\FonnteService;
 use App\Models\Product;
 use App\Models\Partner;
 use App\Models\Member;
@@ -208,6 +209,7 @@ class TransactionController extends Controller
                 'change_amount' => $changeAmount,
                 'customer_phone' => $request->customer_phone,
                 'status' => 'completed',
+                'partner_visit_id' => $request->partner_visit_id ?? null, // ← tambah ini
             ]);
 
             // Simpan items & kurangi stok
@@ -260,43 +262,32 @@ class TransactionController extends Controller
                 }
             }
 
-            // Hitung komisi mitra
-            if ($request->partner_id) {
 
-                $partner = Partner::findOrFail($request->partner_id);
-
-                // Cari komisi partner hari ini
-                $commission = Commission::where('partner_id', $partner->id)
-                    ->whereDate('commission_date', now()->toDateString())
-                    ->first();
-
-                // Kalau belum ada → buat baru
-                if (!$commission) {
-
-                    $commissionRate = $partner->commission_rate ?? 0;
-                    $commissionAmount = $total * ($commissionRate / 100);
-
-                    Commission::create([
-                        'partner_id' => $partner->id,
-                        'commission_date' => now()->toDateString(),
-                        'total_sales' => $total,
-                        'commission_rate' => $commissionRate,
-                        'commission_amount' => $commissionAmount,
-                        'status' => 'unpaid',
-                    ]);
-
-                } else {
-
-                    // Kalau sudah ada → tambah total belanja
-                    $commission->total_sales += $total;
-
-                    // Recalculate komisi
-                    $commission->commission_amount =
-                        $commission->total_sales * ($commission->commission_rate / 100);
-
-                    $commission->save();
-                }
+            if ($transaction->partner_visit_id) {
+                \App\Models\PartnerVisit::where('id', $transaction->partner_visit_id)->increment('total_sales', $total);
             }
+
+            if ($request->customer_phone) {
+    $receiptUrl = route('kasir.receipt', $transaction->id);
+
+    $message = "Halo! Terima kasih sudah berbelanja di *Gem Pearls Lombok* 💎\n\n";
+    $message .= "📋 *Struk Pembelian*\n";
+    $message .= "Invoice: *{$transaction->invoice_number}*\n";
+    $message .= "Tanggal: {$transaction->created_at->format('d/m/Y H:i')}\n";
+    $message .= "Total: *Rp " . number_format($transaction->total, 0, ',', '.') . "*\n";
+    $message .= "Metode: " . strtoupper($transaction->payment_method) . "\n";
+
+    if ($changeAmount > 0) {
+        $message .= "Kembalian: Rp " . number_format($changeAmount, 0, ',', '.') . "\n";
+    }
+
+    $message .= "\n🔗 Lihat struk: {$receiptUrl}\n\n";
+    $message .= "_Simpan pesan ini sebagai bukti pembelian_\n";
+    $message .= "📱 IG: @gempearlsjewelry\n";
+    $message .= "🛍️ Shopee: GEM Pearls Lombok";
+
+    app(FonnteService::class)->send($request->customer_phone, $message);
+}
 
             DB::commit();
 

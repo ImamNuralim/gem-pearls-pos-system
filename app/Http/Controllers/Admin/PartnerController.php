@@ -73,26 +73,24 @@ class PartnerController extends Controller
             ->with('success', "Mitra {$partner->name} berhasil ditambahkan! Kode: {$code}");
     }
 
-    public function show(Partner $partner)
-    {
-        $partner->load('transactions.items', 'commissions');
+   public function show(Partner $partner)
+{
+    $partner->load('commissions');
 
-        // Rekap komisi
-        $totalCommission = $partner->commissions->sum('commission_amount');
-        $unpaidCommission = $partner->commissions->where('status', 'unpaid')->sum('commission_amount');
-        $paidCommission = $partner->commissions->where('status', 'paid')->sum('commission_amount');
+    $totalCommission  = $partner->commissions->sum('commission_amount');
+    $unpaidCommission = $partner->commissions->where('status', 'unpaid')->sum('commission_amount');
+    $paidCommission   = $partner->commissions->where('status', 'paid')->sum('commission_amount');
 
-        // Transaksi per periode
-        $transactions = $partner->transactions()
-            ->with('items', 'user')
-            ->latest()
-            ->paginate(10);
+    $visits = \App\Models\PartnerVisit::with(['commissions'])
+        ->where('partner_id', $partner->id)
+        ->latest()
+        ->paginate(10);
 
-        return view('admin.partners.show', compact(
-            'partner', 'transactions',
-            'totalCommission', 'unpaidCommission', 'paidCommission'
-        ));
-    }
+    return view('admin.partners.show', compact(
+        'partner', 'visits',
+        'totalCommission', 'unpaidCommission', 'paidCommission'
+    ));
+}
 
     public function edit(Partner $partner)
     {
