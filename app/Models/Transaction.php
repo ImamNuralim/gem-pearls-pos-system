@@ -16,7 +16,7 @@ class Transaction extends Model
     'subtotal', 'points_redeemed', 'points_discount',
     'total', 'is_negotiated', 'payment_method',
     'currency_code', 'currency_rate', 'admin_fee',
-    'amount_paid', 'change_amount', 'customer_phone', 'status', 'is_printed'
+    'amount_paid', 'change_amount', 'customer_phone', 'status', 'is_printed', 'receipt_token'
 ];
 
     protected $casts = [

@@ -191,6 +191,7 @@ class TransactionController extends Controller
             // Buat transaksi
             $transaction = Transaction::create([
                 'invoice_number' => Transaction::generateInvoiceNumber(),
+                'receipt_token' => \Str::uuid(),
                 'user_id' => auth()->id() ?? 1,
                 'customer_type' => $request->customer_type,
                 'customer_name' => $request->customer_name,
@@ -268,26 +269,26 @@ class TransactionController extends Controller
             }
 
             if ($request->customer_phone) {
-    $receiptUrl = route('kasir.receipt', $transaction->id);
+                $receiptUrl = route('receipt.public', $transaction->receipt_token);
 
-    $message = "Halo! Terima kasih sudah berbelanja di *Gem Pearls Lombok* 💎\n\n";
-    $message .= "📋 *Struk Pembelian*\n";
-    $message .= "Invoice: *{$transaction->invoice_number}*\n";
-    $message .= "Tanggal: {$transaction->created_at->format('d/m/Y H:i')}\n";
-    $message .= "Total: *Rp " . number_format($transaction->total, 0, ',', '.') . "*\n";
-    $message .= "Metode: " . strtoupper($transaction->payment_method) . "\n";
+                $message = "Halo! Terima kasih sudah berbelanja di *Gem Pearls Lombok* 💎\n\n";
+                $message .= "📋 *Struk Pembelian*\n";
+                $message .= "Invoice: *{$transaction->invoice_number}*\n";
+                $message .= "Tanggal: {$transaction->created_at->format('d/m/Y H:i')}\n";
+                $message .= "Total: *Rp " . number_format($transaction->total, 0, ',', '.') . "*\n";
+                $message .= "Metode: " . strtoupper($transaction->payment_method) . "\n";
 
-    if ($changeAmount > 0) {
-        $message .= "Kembalian: Rp " . number_format($changeAmount, 0, ',', '.') . "\n";
-    }
+                if ($changeAmount > 0) {
+                    $message .= "Kembalian: Rp " . number_format($changeAmount, 0, ',', '.') . "\n";
+                }
 
-    $message .= "\n🔗 Lihat struk: {$receiptUrl}\n\n";
-    $message .= "_Simpan pesan ini sebagai bukti pembelian_\n";
-    $message .= "📱 IG: @gempearlsjewelry\n";
-    $message .= "🛍️ Shopee: GEM Pearls Lombok";
+                $message .= "\n🔗 Lihat struk: {$receiptUrl}\n\n";
+                $message .= "_Simpan pesan ini sebagai bukti pembelian_\n";
+                $message .= "📱 IG: @gempearlsjewelry\n";
+                $message .= "🛍️ Shopee: GEM Pearls Lombok";
 
-    app(FonnteService::class)->send($request->customer_phone, $message);
-}
+                app(FonnteService::class)->send($request->customer_phone, $message);
+            }
 
             DB::commit();
 
@@ -345,4 +346,12 @@ class TransactionController extends Controller
             ]
         ]);
     }
+    public function publicReceipt(string $token)
+{
+    $transaction = Transaction::where('receipt_token', $token)
+        ->with(['items', 'partner', 'member', 'user'])
+        ->firstOrFail();
+
+    return view('kasir.receipt', compact('transaction'));
+}
 }

@@ -37,6 +37,10 @@ require __DIR__.'/auth.php';
 // ─────────────────────────────────────────────
 // AUTHENTICATED ROUTES
 // ─────────────────────────────────────────────
+
+// Public receipt
+Route::get('/receipt/{token}', [TransactionController::class, 'publicReceipt'])->name('receipt.public');
+
 Route::middleware(['auth'])->group(function () {
 
     // ── Dashboards ──────────────────────────
