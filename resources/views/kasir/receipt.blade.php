@@ -191,7 +191,7 @@
     <div class="header">
         <div class="store-name">&#9830; GEM PEARLS</div>
         <div class="store-tagline">Perhiasan & Oleh-oleh Lombok</div>
-        <div class="store-tagline">Lombok, Nusa Tenggara Barat</div>
+        <div class="store-tagline">Jl. Raya Meninting, No. 69, Batu Layar, Lombok, Nusa Tenggara Barat</div>
     </div>
 
     <div class="divider-solid"></div>
