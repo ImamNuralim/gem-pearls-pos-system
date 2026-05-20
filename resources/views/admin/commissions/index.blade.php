@@ -329,6 +329,11 @@
                     <span class="text-sm font-semibold text-slate-400">%</span>
                 </div>
             </div>
+            <div>
+    <label class="label">Tanggal Pengambilan Komisi</label>
+    <input type="date" name="pickup_deadline" class="input-field rounded-xl py-1" value="{{ old('pickup_deadline') }}">
+    <p class="text-xs text-slate-400 mt-1">Tanggal batas pengambilan komisi oleh mitra</p>
+</div>
 
             <div class="flex justify-end pt-1">
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-sm">

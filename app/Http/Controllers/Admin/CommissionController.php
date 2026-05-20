@@ -52,7 +52,7 @@ class CommissionController extends Controller
             'sticker_number' => $visit->sticker_number,
             'group_description' => $visit->group_description,
             'visit_date' => $visit->visit_date,
-            'pickup_deadline' => $visit->pickup_deadline,
+            'pickup_deadline' => $request->pickup_deadline,
             'vehicle_notes' => $visit->vehicle_notes,
             'commission_date' => now()->toDateString(),
             'total_sales' => $visit->total_sales,
