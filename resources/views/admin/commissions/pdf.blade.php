@@ -23,39 +23,32 @@
 
         .info-grid { display: table; width: 100%; margin-bottom: 10px; }
         .info-row { display: table-row; }
-        .info-cell { display: table-cell; width: 50%; padding: 3px 0; vertical-align: top; }
-        .info-label { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 1px; }
-        .info-value { font-size: 14px; font-weight: bold; color: #1e293b; }
+        .info-cell { display: table-cell; width: 50%; padding: 5px 0; vertical-align: top; }
+        .info-label { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 2px; }
+        .info-value { font-size: 14px; font-weight: bold; color: #0f172a; }
 
         .divider { border: none; border-top: 1px solid #e2e8f0; margin: 10px 0; }
 
-        .section-title { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #64748b; background: #f8fafc; padding: 4px 8px; border-left: 3px solid #1d4ed8; margin-bottom: 8px; }
+        .section-title { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #64748b; background: #f8fafc; padding: 5px 8px; border-left: 3px solid #1d4ed8; margin-bottom: 8px; }
 
         .guide-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .guide-table th { text-align: left; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; padding: 4px 6px; border-bottom: 1px solid #e2e8f0; }
-        .guide-table td { padding: 4px 6px; font-size: 12px; border-bottom: 1px solid #f8fafc; color: #334155; }
+        .guide-table th { text-align: left; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; padding: 6px 8px; border-bottom: 1.5px solid #e2e8f0; }
+        .guide-table td { padding: 8px 8px; font-size: 12px; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
         .guide-code { font-weight: bold; color: #1d4ed8; }
 
-        .rekap-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 16px; margin-bottom: 10px; }
-        .rekap-row { display: table; width: 100%; padding: 4px 0; border-bottom: 1px solid #e2e8f0; }
+        .rekap-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0 16px; margin-bottom: 10px; }
+        .rekap-row { display: table; width: 100%; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
         .rekap-row:last-child { border-bottom: none; }
-        .rekap-label { display: table-cell; font-size: 12px; color: #64748b; width: 50%; }
-        .rekap-value { display: table-cell; font-size: 12px; font-weight: bold; color: #1e293b; text-align: right; }
-        .rekap-value.green { color: #059669; font-size: 14px; }
+        .rekap-label { display: table-cell; font-size: 12px; color: #334155; width: 50%; vertical-align: middle; line-height: 1.5; }
+        .rekap-value { display: table-cell; font-size: 12px; font-weight: bold; color: #0f172a; text-align: right; vertical-align: middle; line-height: 1.5; }
+        .rekap-value.green { color: #047857; font-size: 14px; }
         .rekap-value.blue { color: #1d4ed8; }
 
-        .total-box { background: #1e3a5f; border-radius: 6px; padding: 10px 16px; display: table; width: 100%; margin-bottom: 16px; }
-        .total-label { display: table-cell; font-size: 12px; font-weight: bold; color: #93c5fd; }
-        .total-value { display: table-cell; font-size: 20px; font-weight: bold; color: #fbbf24; text-align: right; }
+        .total-box { background: #1e3a5f; border-radius: 6px; padding: 12px 16px; display: table; width: 100%; margin-bottom: 16px; page-break-inside: avoid; page-break-after: avoid; }
+        .total-label { display: table-cell; font-size: 13px; font-weight: bold; color: #93c5fd; vertical-align: middle; }
+        .total-value { display: table-cell; font-size: 22px; font-weight: bold; color: #fbbf24; text-align: right; vertical-align: middle; }
 
-        .footer { padding: 8px 32px; background: #f8fafc; border-top: 2px solid #1e3a5f; margin-top: 16px; page-break-inside: avoid; }
-.footer-notes { font-size: 9px; color: #646b76; line-height: 1.6; text-align: left; }
-.footer-contact { display: table; width: 100%; margin-top: 6px; }
-.footer-contact-col { display: table-cell; font-size: 12px; color: #1e293b; width: 33.33%; text-align: left; vertical-align: top; padding-right: 8px; }
-.footer-contact-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; text-align: left; }
-.footer-contact-value { font-weight: bold; color: #1e3a5f; font-size: 12px; text-align: left; }
-.footer-generated { font-size: 9px; color: #94a3b8; margin-top: 4px; text-align: left; }
-.total-box { background: #1e3a5f; border-radius: 6px; padding: 12px 16px; display: table; width: 100%; margin-bottom: 16px; page-break-inside: avoid; page-break-after: avoid; }
+        .footer { padding: 10px 32px; background: #f8fafc; border-top: 2px solid #1e3a5f; margin-top: 16px; page-break-inside: avoid; }
     </style>
 </head>
 <body>
@@ -117,7 +110,7 @@
             <table style="width:100%; border-collapse:collapse;">
                 <tr>
                     @foreach($commission->visit->vehicles as $vehicle)
-                    <td style="padding: 3px 8px 3px 0; font-size:12px; font-weight:bold; color:#1e293b; white-space:nowrap;">
+                    <td style="padding: 5px 8px 5px 0; font-size:12px; font-weight:bold; color:#0f172a; white-space:nowrap; vertical-align:middle;">
                         {{ $vehicle->plate_number }}
                         <span style="font-weight:normal; color:#64748b; font-size:10px;">· {{ $vehicle->vehicle_type }}</span>
                     </td>
@@ -132,9 +125,9 @@
         <table class="guide-table">
             <thead>
                 <tr>
-                    <th>Kode</th>
-                    <th>Nama</th>
-                    <th>No. HP</th>
+                    <th style="width:20%;">Kode</th>
+                    <th style="width:45%;">Nama</th>
+                    <th style="width:35%;">No. HP</th>
                 </tr>
             </thead>
             <tbody>
@@ -162,46 +155,54 @@
                 <div class="rekap-value">{{ number_format($commission->commission_rate, 2) }}%</div>
             </div>
             <div class="rekap-row">
-                <div class="rekap-label" style="font-weight:bold; color:#1e293b;">Total Komisi</div>
+                <div class="rekap-label" style="font-weight:bold; color:#0f172a;">Total Komisi</div>
                 <div class="rekap-value green">Rp {{ number_format($commission->commission_amount, 0, ',', '.') }}</div>
             </div>
         </div>
-
-        <div class="total-box">
-            <div class="total-label">Total Komisi Anda</div>
-            <div class="total-value">Rp {{ number_format($commission->commission_amount, 0, ',', '.') }}</div>
-        </div>
-
     </div>
 
+    {{-- Footer --}}
     <div class="footer">
-    <div style="display:table; width:100%;">
-        <div style="display:table-cell; width:55%; vertical-align:top; padding-right:16px;">
-            <div style="font-size:9px; color:#646b76; line-height:1.8;">
-                * Mohon menunjukkan slip ini saat pengambilan komisi<br>
-                * Batas pengambilan: {{ $commission->pickup_deadline?->format('d M Y') ?? '3 bulan dari tanggal kunjungan' }}<br>
-                * Diterbitkan resmi oleh Gem Pearls Jewelry, Lombok NTB
+        <div style="display:table; width:100%;">
+
+            {{-- Kiri: Catatan --}}
+            <div style="display:table-cell; width:40%; vertical-align:top; padding-right:16px;">
+                <div style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; margin-bottom:5px;">Catatan</div>
+                <div style="font-size:9px; color:#475569; line-height:1.9;">
+                    * Mohon menunjukkan slip ini saat pengambilan komisi<br>
+                    * Batas pengambilan: {{ $commission->pickup_deadline?->format('d M Y') ?? '3 bulan dari tanggal kunjungan' }}<br>
+                    * Diterbitkan resmi oleh Gem Pearls Jewelry, Lombok NTB
+                </div>
             </div>
+
+            {{-- Tengah: Kontak --}}
+            <div style="display:table-cell; width:35%; vertical-align:top; padding-right:12px;">
+                <div style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; color:#64748b; margin-bottom:5px;">Kontak</div>
+                <div style="margin-bottom:5px;">
+                    <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">GEM Pearls Lombok</div>
+                    <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">081916088775</div>
+                </div>
+                <div style="margin-bottom:5px;">
+                    <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Transport Anda</div>
+                    <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">0817141818</div>
+                </div>
+                <div>
+                    <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">GEM Resto</div>
+                    <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">08175713400 · 081236450391</div>
+                </div>
+            </div>
+
+            {{-- Kanan: QR Code --}}
+            <div style="display:table-cell; width:25%; vertical-align:middle; text-align:center;">
+                <img src="{{ asset('assets/gem-group-qr-code.png') }}" style="width:72px; height:72px; object-fit:contain; border:1px solid #e2e8f0; border-radius:6px; padding:3px;">
+                <div style="font-size:8px; color:#94a3b8; margin-top:4px; letter-spacing:0.3px;">Scan untuk disini</div>
+            </div>
+
         </div>
-        <div style="display:table-cell; width:45%; vertical-align:top; text-align:right;">
-            <div style="margin-bottom:3px;">
-                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">GEM Pearls Lombok</div>
-                <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">081916088775</div>
-            </div>
-            <div style="margin-bottom:3px;">
-                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Transport Anda</div>
-                <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">0817141818</div>
-            </div>
-            <div>
-                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">GEM Resto</div>
-                <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">08175713400 · 081236450391</div>
-            </div>
+        <div style="font-size:9px; color:#94a3b8; text-align:center; margin-top:8px; border-top:1px solid #e2e8f0; padding-top:5px;">
+            Generated by Gem Pearls Lombok · {{ now()->format('d/m/Y H:i') }}
         </div>
     </div>
-    <div style="font-size:9px; color:#94a3b8; text-align:center; margin-top:6px; border-top:1px solid #e2e8f0; padding-top:4px;">
-        Generated by Gem Pearls Lombok · {{ now()->format('d/m/Y H:i') }}
-    </div>
-</div>
 
 </body>
 </html>
