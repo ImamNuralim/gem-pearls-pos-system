@@ -26,6 +26,8 @@ class TransactionController extends Controller
     // Halaman utama kasir
     public function index()
     {
+
+        $salesStaffs = \App\Models\SalesStaff::where('is_active', true)->orderBy('name')->get();
         $products = Product::with('primaryPhoto')
             ->where('is_active', true)
             ->where('stock', '>', 0)
@@ -44,7 +46,13 @@ class TransactionController extends Controller
             ];
         })->values()->toJson();
 
-        return view('kasir.pos', compact('products', 'productsJson'));
+        return view('kasir.pos', compact('products', 'productsJson', 'salesStaffs'));
+
+    }
+
+    public function viewPdf(Commission $commission)
+    {
+        return view('admin.commissions.pdf', compact('commission'));
     }
 
     // Search produk (AJAX)
@@ -210,6 +218,7 @@ class TransactionController extends Controller
                 'change_amount' => $changeAmount,
                 'customer_phone' => $request->customer_phone,
                 'status' => 'completed',
+                'sales_staff_id' => $request->sales_staff_id,
                 'partner_visit_id' => $request->partner_visit_id ?? null, // ← tambah ini
             ]);
 
@@ -347,11 +356,11 @@ class TransactionController extends Controller
         ]);
     }
     public function publicReceipt(string $token)
-{
-    $transaction = Transaction::where('receipt_token', $token)
-        ->with(['items', 'partner', 'member', 'user'])
-        ->firstOrFail();
+    {
+        $transaction = Transaction::where('receipt_token', $token)
+            ->with(['items', 'partner', 'member', 'user'])
+            ->firstOrFail();
 
-    return view('kasir.receipt', compact('transaction'));
-}
+        return view('kasir.receipt', compact('transaction'));
+    }
 }

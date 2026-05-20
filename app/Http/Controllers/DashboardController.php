@@ -319,4 +319,14 @@ public function updateVisitStatus(Request $request, \App\Models\PartnerVisit $vi
 
     return redirect()->back()->with('success', 'Status diperbarui!');
 }
+public function updateVisit(Request $request, \App\Models\PartnerVisit $visit)
+{
+    $visit->update([
+        'sticker_number'    => $request->sticker_number,
+        'group_description' => $request->group_description,
+        'status'            => $request->status,
+    ]);
+
+    return back()->with('success', 'Data kunjungan berhasil diupdate!');
+}
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\ReportController;
@@ -10,46 +11,50 @@ use App\Http\Controllers\Admin\CommissionController;
 use App\Http\Controllers\Admin\VisitController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\TaxController;
-use App\Http\Controllers\Kasir\TransactionController;
-use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CustomerPhoneController;
+use App\Http\Controllers\Admin\SalesStaffController;
+use App\Http\Controllers\Admin\UploadUserController;
+use App\Http\Controllers\Kasir\TransactionController;
+use App\Http\Controllers\Kasir\ProductUploadController;
+use App\Http\Controllers\CurrencyController;
 
+// ── Root ─────────────────────────────────────
 Route::get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
-        if ($user->hasRole('owner') || $user->hasRole('admin')) {
-            return redirect()->route('dashboard.admin');
-        }
-        if ($user->hasRole('kasir')) {
-            return redirect()->route('dashboard.kasir');
-        }
-        if ($user->hasRole('security')) {
-            return redirect()->route('dashboard.security');
-        }
+        if ($user->hasRole('owner') || $user->hasRole('admin')) return redirect()->route('dashboard.admin');
+        if ($user->hasRole('kasir'))    return redirect()->route('dashboard.kasir');
+        if ($user->hasRole('security')) return redirect()->route('dashboard.security');
     }
     return redirect()->route('login');
 });
 
-// Auth routes (login, logout, dll)
+// ── Auth ─────────────────────────────────────
 require __DIR__.'/auth.php';
+
+// ── Public ───────────────────────────────────
+Route::get('/receipt/{token}', [TransactionController::class, 'publicReceipt'])->name('receipt.public');
+
+// ── Upload (standalone, no auth) ─────────────
+Route::get('/upload',         [UploadController::class, 'showLogin'])->name('upload.login');
+Route::post('/upload/login',  [UploadController::class, 'login'])->name('upload.login.post');
+Route::post('/upload/logout', [UploadController::class, 'logout'])->name('upload.logout');
+Route::get('/upload/create',  [UploadController::class, 'create'])->name('upload.create');
+Route::post('/upload/create', [UploadController::class, 'store'])->name('upload.store');
 
 // ─────────────────────────────────────────────
 // AUTHENTICATED ROUTES
 // ─────────────────────────────────────────────
-
-// Public receipt
-Route::get('/receipt/{token}', [TransactionController::class, 'publicReceipt'])->name('receipt.public');
-
 Route::middleware(['auth'])->group(function () {
 
-    // ── Dashboards ──────────────────────────
-    Route::get('/dashboard/admin',    [DashboardController::class, 'admin'])->name('dashboard.admin');
-    Route::get('/dashboard/kasir',    [TransactionController::class, 'index'])->name('dashboard.kasir');
-    Route::get('/dashboard/security', [DashboardController::class, 'security'])->name('dashboard.security');
+    // ── Dashboards ───────────────────────────
+    Route::get('/dashboard/admin',    [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:owner,admin');
+    Route::get('/dashboard/kasir',    [TransactionController::class, 'index'])->name('dashboard.kasir')->middleware('role:kasir,owner,admin');
+    Route::get('/dashboard/security', [DashboardController::class, 'security'])->name('dashboard.security')->middleware('role:security,owner,admin');
 
     // ── Admin ────────────────────────────────
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('role:owner,admin')->group(function () {
 
         // Products
         Route::resource('products', ProductController::class);
@@ -77,14 +82,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('commissions/{commission}/paid',          [CommissionController::class, 'markPaid'])->name('commissions.paid');
         Route::post('commissions/{commission}/update-rate',   [CommissionController::class, 'updateRate'])->name('commissions.update-rate');
         Route::get('commissions/{commission}/pdf',            [CommissionController::class, 'downloadPdf'])->name('commissions.pdf');
+        Route::get('commissions/{commission}/view',           [CommissionController::class, 'viewPdf'])->name('commissions.view');
         Route::post('commissions/{commission}/update-detail', [CommissionController::class, 'updateDetail'])->name('commissions.update-detail');
         Route::post('commissions/{commission}/attach-guide',  [CommissionController::class, 'attachGuide'])->name('commissions.attach-guide');
         Route::delete('commissions/{commission}',             [CommissionController::class, 'destroy'])->name('commissions.destroy');
 
         // Receipts
-        Route::get('receipts',                        [ReceiptController::class, 'index'])->name('receipts.index');
-        Route::post('receipts/{transaction}/print',   [ReceiptController::class, 'markPrinted'])->name('receipts.print');
-        Route::delete('receipts/{transaction}',       [ReceiptController::class, 'destroy'])->name('receipts.destroy');
+        Route::get('receipts',                      [ReceiptController::class, 'index'])->name('receipts.index');
+        Route::post('receipts/{transaction}/print', [ReceiptController::class, 'markPrinted'])->name('receipts.print');
+        Route::delete('receipts/{transaction}',     [ReceiptController::class, 'destroy'])->name('receipts.destroy');
 
         // Tax
         Route::get('tax',             [TaxController::class, 'index'])->name('tax.index');
@@ -96,36 +102,50 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.delete');
 
         // Users
-        Route::get('users', [UserController::class, 'index'])->name('users.index');
-        Route::post('users', [UserController::class, 'store'])->name('users.store');
-        Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-        Route::post('users/{user}/role', [UserController::class, 'updateRole'])->name('users.role');
+        Route::get('users',                  [UserController::class, 'index'])->name('users.index');
+        Route::post('users',                 [UserController::class, 'store'])->name('users.store');
+        Route::delete('users/{user}',        [UserController::class, 'destroy'])->name('users.destroy');
+        Route::post('users/{user}/role',     [UserController::class, 'updateRole'])->name('users.role');
         Route::post('users/{user}/password', [UserController::class, 'updatePassword'])->name('users.password');
 
-        Route::get('customers', [CustomerPhoneController::class, 'index'])->name('customers.index');
+        // Customers
+        Route::get('customers',        [CustomerPhoneController::class, 'index'])->name('customers.index');
         Route::get('customers/export', [CustomerPhoneController::class, 'export'])->name('customers.export');
+
+        // Sales Staff
+        Route::get('sales-staff',                 [SalesStaffController::class, 'index'])->name('sales-staff.index');
+        Route::post('sales-staff',                [SalesStaffController::class, 'store'])->name('sales-staff.store');
+        Route::put('sales-staff/{salesStaff}',    [SalesStaffController::class, 'update'])->name('sales-staff.update');
+        Route::delete('sales-staff/{salesStaff}', [SalesStaffController::class, 'destroy'])->name('sales-staff.destroy');
+
+        // Upload Users
+        Route::get('upload-users',                 [UploadUserController::class, 'index'])->name('upload-users.index');
+        Route::post('upload-users',                [UploadUserController::class, 'store'])->name('upload-users.store');
+        Route::put('upload-users/{uploadUser}',    [UploadUserController::class, 'update'])->name('upload-users.update');
+        Route::delete('upload-users/{uploadUser}', [UploadUserController::class, 'destroy'])->name('upload-users.destroy');
 
     });
 
     // ── Kasir ────────────────────────────────
-    Route::prefix('kasir')->name('kasir.')->group(function () {
-        Route::get('/',               [TransactionController::class, 'index'])->name('pos');
-        Route::get('/search-product', [TransactionController::class, 'searchProduct'])->name('search.product');
-        Route::get('/search-partner', [TransactionController::class, 'searchPartner'])->name('search.partner');
-        Route::get('/search-member',  [TransactionController::class, 'searchMember'])->name('search.member');
-        Route::post('/checkout',      [TransactionController::class, 'checkout'])->name('checkout');
+    Route::prefix('kasir')->name('kasir.')->middleware('role:kasir,owner,admin')->group(function () {
+        Route::get('/',                      [TransactionController::class, 'index'])->name('pos');
+        Route::get('/search-product',        [TransactionController::class, 'searchProduct'])->name('search.product');
+        Route::get('/search-partner',        [TransactionController::class, 'searchPartner'])->name('search.partner');
+        Route::get('/search-member',         [TransactionController::class, 'searchMember'])->name('search.member');
+        Route::post('/checkout',             [TransactionController::class, 'checkout'])->name('checkout');
         Route::get('/receipt/{transaction}', [TransactionController::class, 'receipt'])->name('receipt');
-        Route::post('/create-member', [TransactionController::class, 'storeMember']);
+        Route::post('/create-member',        [TransactionController::class, 'storeMember']);
     });
 
     // ── Security ─────────────────────────────
-    Route::prefix('security')->group(function () {
-        Route::post('visits/store',  [DashboardController::class, 'storeVisit'])->name('security.visits.store');
-        Route::post('partner/store', [DashboardController::class, 'storePartner'])->name('security.partner.store');
-        Route::post('guides/store',  [DashboardController::class, 'storeGuide'])->name('security.guides.store');
-        Route::post('walkin/store',  [DashboardController::class, 'storeWalkin'])->name('security.walkin.store');
-        Route::get('search-guides',  [DashboardController::class, 'searchGuides']);
+    Route::prefix('security')->middleware('role:security,owner,admin')->group(function () {
+        Route::post('visits/store',          [DashboardController::class, 'storeVisit'])->name('security.visits.store');
+        Route::post('partner/store',         [DashboardController::class, 'storePartner'])->name('security.partner.store');
+        Route::post('guides/store',          [DashboardController::class, 'storeGuide'])->name('security.guides.store');
+        Route::post('walkin/store',          [DashboardController::class, 'storeWalkin'])->name('security.walkin.store');
+        Route::get('search-guides',          [DashboardController::class, 'searchGuides']);
         Route::post('visits/{visit}/status', [DashboardController::class, 'updateVisitStatus'])->name('security.visits.status');
+        Route::put('visits/{visit}',         [DashboardController::class, 'updateVisit'])->name('security.visits.update');
     });
 
     // ── API ──────────────────────────────────

@@ -4,335 +4,67 @@
     <meta charset="UTF-8">
     <title>Slip Komisi — {{ $commission->partner->name }}</title>
     <style>
-        @page { margin: 0; size: A4; }
-
+        @page { margin: 10px 0; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Liberation Sans, sans-serif; background: #fff; color: #1e293b; font-size: 12px; }
 
-        body {
-            font-family: Liberation Sans, sans-serif;
-            background: #fff;
-            color: #1e293b;
-            font-size: 12px;
-        }
+        .header { background: #1e3a5f; padding: 12px 32px; display: table; width: 100%; }
+        .header-left { display: table-cell; vertical-align: middle; }
+        .header-right { display: table-cell; vertical-align: middle; text-align: right; }
+        .logo { width: 48px; height: 48px; object-fit: contain; vertical-align: middle; margin-right: 10px; }
+        .brand-name { font-size: 18px; font-weight: bold; color: #fff; letter-spacing: 1px; display: inline; }
+        .brand-sub { font-size: 10px; color: #93c5fd; margin-top: 2px; }
+        .doc-title { font-size: 14px; font-weight: bold; color: #fbbf24; text-transform: uppercase; letter-spacing: 2px; }
+        .doc-date { font-size: 10px; color: #93c5fd; margin-top: 2px; }
 
-        /* HEADER */
-        .header {
-    background: #1e3a5f;
-    padding: 16px 36px;
-    display: table;
-    width: 100%;
-}
+        .accent-bar { height: 3px; background: linear-gradient(to right, #1d4ed8, #fbbf24); }
 
-.header-left {
-    display: table-cell;
-    vertical-align: middle;
-}
+        .body { padding: 16px 32px; }
 
-.header-right {
-    display: table-cell;
-    vertical-align: middle;
-    text-align: right;
-}
+        .info-grid { display: table; width: 100%; margin-bottom: 10px; }
+        .info-row { display: table-row; }
+        .info-cell { display: table-cell; width: 50%; padding: 3px 0; vertical-align: top; }
+        .info-label { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 1px; }
+        .info-value { font-size: 14px; font-weight: bold; color: #1e293b; }
 
-        .logo {
-            width: 64px;
-            height: 64px;
-            object-fit: contain;
-        }
+        .divider { border: none; border-top: 1px solid #e2e8f0; margin: 10px 0; }
 
-        .brand-name {
-            font-size: 22px;
-            font-weight: bold;
-            color: #fff;
-            letter-spacing: 1px;
-        }
+        .section-title { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #64748b; background: #f8fafc; padding: 4px 8px; border-left: 3px solid #1d4ed8; margin-bottom: 8px; }
 
-        .brand-sub {
-            font-size: 11px;
-            color: #93c5fd;
-            margin-top: 2px;
-        }
+        .guide-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .guide-table th { text-align: left; font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; padding: 4px 6px; border-bottom: 1px solid #e2e8f0; }
+        .guide-table td { padding: 4px 6px; font-size: 12px; border-bottom: 1px solid #f8fafc; color: #334155; }
+        .guide-code { font-weight: bold; color: #1d4ed8; }
 
-
-        .doc-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #fbbf24;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .doc-date {
-            font-size: 11px;
-            color: #93c5fd;
-            margin-top: 4px;
-        }
-
-        /* ACCENT BAR */
-        .accent-bar {
-            height: 4px;
-            background: linear-gradient(to right, #1d4ed8, #fbbf24);
-        }
-
-        /* BODY */
-        .body {
-            padding: 30px 36px;
-        }
-
-        /* INFO GRID */
-        .info-grid {
-            display: table;
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-        }
-
-        .info-row {
-            display: table-row;
-        }
-
-        .info-cell {
-            display: table-cell;
-            width: 50%;
-            padding: 6px 0;
-            vertical-align: top;
-        }
-
-        .info-label {
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #94a3b8;
-            margin-bottom: 2px;
-        }
-
-        .info-value {
-            font-size: 13px;
-            font-weight: bold;
-            color: #1e293b;
-        }
-
-        /* DIVIDER */
-        .divider {
-            border: none;
-            border-top: 1px solid #e2e8f0;
-            margin: 20px 0;
-        }
-
-        .divider-bold {
-            border: none;
-            border-top: 2px solid #1e3a5f;
-            margin: 20px 0;
-        }
-
-        /* SECTION TITLE */
-        .section-title {
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #64748b;
-            background: #f8fafc;
-            padding: 6px 10px;
-            border-left: 3px solid #1d4ed8;
-            margin-bottom: 12px;
-        }
-
-        /* PLAT TABLE */
-        .plat-list {
-            display: table;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .plat-row {
-            display: table-row;
-        }
-
-        .plat-cell {
-            display: table-cell;
-            padding: 5px 8px;
-            font-size: 11px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .plat-cell.bold { font-weight: bold; color: #1e293b; }
-        .plat-cell.muted { color: #64748b; }
-
-        /* GUIDE TABLE */
-        .guide-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .guide-table th {
-            text-align: left;
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #94a3b8;
-            padding: 6px 8px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .guide-table td {
-            padding: 7px 8px;
-            font-size: 11px;
-            border-bottom: 1px solid #f8fafc;
-            color: #334155;
-        }
-
-        .guide-code {
-            font-weight: bold;
-            color: #1d4ed8;
-        }
-
-        /* REKAP KOMISI */
-        .rekap-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .rekap-row {
-            display: table;
-            width: 100%;
-            padding: 6px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
+        .rekap-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 16px; margin-bottom: 10px; }
+        .rekap-row { display: table; width: 100%; padding: 4px 0; border-bottom: 1px solid #e2e8f0; }
         .rekap-row:last-child { border-bottom: none; }
-
-        .rekap-label {
-            display: table-cell;
-            font-size: 11px;
-            color: #64748b;
-            width: 50%;
-        }
-
-        .rekap-value {
-            display: table-cell;
-            font-size: 11px;
-            font-weight: bold;
-            color: #1e293b;
-            text-align: right;
-        }
-
-        .rekap-value.green { color: #059669; }
+        .rekap-label { display: table-cell; font-size: 12px; color: #64748b; width: 50%; }
+        .rekap-value { display: table-cell; font-size: 12px; font-weight: bold; color: #1e293b; text-align: right; }
+        .rekap-value.green { color: #059669; font-size: 14px; }
         .rekap-value.blue { color: #1d4ed8; }
 
-        /* TOTAL BOX */
-        .total-box {
-            background: #1e3a5f;
-            border-radius: 8px;
-            padding: 16px 20px;
-            display: table;
-            width: 100%;
-            margin-bottom: 24px;
-        }
+        .total-box { background: #1e3a5f; border-radius: 6px; padding: 10px 16px; display: table; width: 100%; margin-bottom: 16px; }
+        .total-label { display: table-cell; font-size: 12px; font-weight: bold; color: #93c5fd; }
+        .total-value { display: table-cell; font-size: 20px; font-weight: bold; color: #fbbf24; text-align: right; }
 
-        .total-label {
-            display: table-cell;
-            font-size: 13px;
-            font-weight: bold;
-            color: #93c5fd;
-        }
-
-        .total-value {
-            display: table-cell;
-            font-size: 22px;
-            font-weight: bold;
-            color: #fbbf24;
-            text-align: right;
-        }
-
-        /* SIGNATURE */
-        .signature-area {
-            display: table;
-            width: 100%;
-            margin-top: 30px;
-        }
-
-        .signature-cell {
-            display: table-cell;
-            width: 50%;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-       .signature-title {
-    font-size: 10px;
-    color: #64748b;
-    margin-bottom: 60px;
-}
-
-.signature-role {
-    font-size: 9px;
-    color: #94a3b8;
-    margin-top: 6px;
-}
-
-        .signature-line {
-            border-top: 1px solid #1e293b;
-            padding-top: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #1e293b;
-        }
-
-
-        /* FOOTER */
-        .footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 10px 36px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-}
-
-        .footer-notes {
-            font-size: 9px;
-            color: #646b76;
-            line-height: 1.8;
-        }
-
-        .footer-generated {
-            font-size: 9px;
-            color: #818d9c;
-            text-align: right;
-            margin-top: 6px;
-        }
-
-        /* BADGE */
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .badge-blue { background: #dbeafe; color: #1d4ed8; }
-        .badge-amber { background: #fef3c7; color: #d97706; }
+        .footer { padding: 8px 32px; background: #f8fafc; border-top: 2px solid #1e3a5f; margin-top: 16px; page-break-inside: avoid; }
+.footer-notes { font-size: 9px; color: #646b76; line-height: 1.6; text-align: left; }
+.footer-contact { display: table; width: 100%; margin-top: 6px; }
+.footer-contact-col { display: table-cell; font-size: 12px; color: #1e293b; width: 33.33%; text-align: left; vertical-align: top; padding-right: 8px; }
+.footer-contact-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; text-align: left; }
+.footer-contact-value { font-weight: bold; color: #1e3a5f; font-size: 12px; text-align: left; }
+.footer-generated { font-size: 9px; color: #94a3b8; margin-top: 4px; text-align: left; }
+.total-box { background: #1e3a5f; border-radius: 6px; padding: 12px 16px; display: table; width: 100%; margin-bottom: 16px; page-break-inside: avoid; page-break-after: avoid; }
     </style>
 </head>
 <body>
 
-    {{-- HEADER --}}
     <div class="header">
         <div class="header-left">
-            <img src="{{ public_path('assets/gem-pearls-logo.png') }}" class="logo">
-            <div>
-                <div class="brand-name">Gem Pearls</div>
-                <div class="brand-sub">Jewelry & Souvenir · Lombok, NTB</div>
-            </div>
+            <img src="{{ asset('assets/gem-pearls-logo.png') }}" class="logo">
+            <span class="brand-name">Gem Pearls</span>
+            <div class="brand-sub">Jewelry & Souvenir · Lombok, NTB</div>
         </div>
         <div class="header-right">
             <div class="doc-title">Slip Komisi Partner</div>
@@ -342,10 +74,8 @@
 
     <div class="accent-bar"></div>
 
-    {{-- BODY --}}
     <div class="body">
 
-        {{-- INFO UTAMA --}}
         <div class="info-grid">
             <div class="info-row">
                 <div class="info-cell">
@@ -354,9 +84,7 @@
                 </div>
                 <div class="info-cell">
                     <div class="info-label">Tipe</div>
-                    <div class="info-value">
-                        {{ $commission->partner->type === 'travel_agent' ? 'Travel Agent' : 'Freelance Guide' }}
-                    </div>
+                    <div class="info-value">{{ $commission->partner->type === 'travel_agent' ? 'Travel Agent' : 'Freelance Guide' }}</div>
                 </div>
             </div>
             <div class="info-row">
@@ -383,14 +111,13 @@
 
         <hr class="divider">
 
-        {{-- DAFTAR PLAT --}}
         @if($commission->visit && $commission->visit->vehicles->isNotEmpty())
         <div class="section-title">Daftar No Plat Kendaraan</div>
-        <div style="margin-bottom: 16px;">
+        <div style="margin-bottom: 10px;">
             <table style="width:100%; border-collapse:collapse;">
                 <tr>
                     @foreach($commission->visit->vehicles as $vehicle)
-                    <td style="padding: 4px 10px 4px 0; font-size:12px; font-weight:bold; color:#1e293b; white-space:nowrap;">
+                    <td style="padding: 3px 8px 3px 0; font-size:12px; font-weight:bold; color:#1e293b; white-space:nowrap;">
                         {{ $vehicle->plate_number }}
                         <span style="font-weight:normal; color:#64748b; font-size:10px;">· {{ $vehicle->vehicle_type }}</span>
                     </td>
@@ -400,7 +127,6 @@
         </div>
         @endif
 
-        {{-- DAFTAR GUIDE --}}
         @if($commission->guides->isNotEmpty())
         <div class="section-title">Daftar Guide / Driver</div>
         <table class="guide-table">
@@ -425,7 +151,6 @@
 
         <hr class="divider">
 
-        {{-- REKAP KOMISI --}}
         <div class="section-title">Rekap Komisi</div>
         <div class="rekap-box">
             <div class="rekap-row">
@@ -438,39 +163,42 @@
             </div>
             <div class="rekap-row">
                 <div class="rekap-label" style="font-weight:bold; color:#1e293b;">Total Komisi</div>
-                <div class="rekap-value green" style="font-size:14px;">Rp {{ number_format($commission->commission_amount, 0, ',', '.') }}</div>
+                <div class="rekap-value green">Rp {{ number_format($commission->commission_amount, 0, ',', '.') }}</div>
             </div>
         </div>
 
-        {{-- SIGNATURE --}}
-        <div class="signature-area">
-            <div class="signature-cell">
-                <div class="signature-title">Penerima Komisi</div>
-                <div class="signature-line">{{ $commission->partner->name }}</div>
-                <div class="signature-role">Partner</div>
-            </div>
-            <div class="signature-cell">
-                <div class="signature-title">Disetujui Oleh</div>
-                <div class="signature-line">Gem Pearls</div>
-                <div class="signature-role">Management</div>
-            </div>
+        <div class="total-box">
+            <div class="total-label">Total Komisi Anda</div>
+            <div class="total-value">Rp {{ number_format($commission->commission_amount, 0, ',', '.') }}</div>
         </div>
 
     </div>
 
-    {{-- FOOTER --}}
     <div class="footer">
-    <div class="footer-notes">
-        * Mohon menunjukkan slip ini saat pengambilan komisi<br>
-        * Batas pengambilan: {{ $commission->pickup_deadline?->format('d M Y') ?? '3 bulan dari tanggal kunjungan' }}<br>
-        * Slip ini diterbitkan secara resmi oleh Gem Pearls Jewelry, Lombok NTB
+    <div style="display:table; width:100%;">
+        <div style="display:table-cell; width:55%; vertical-align:top; padding-right:16px;">
+            <div style="font-size:9px; color:#646b76; line-height:1.8;">
+                * Mohon menunjukkan slip ini saat pengambilan komisi<br>
+                * Batas pengambilan: {{ $commission->pickup_deadline?->format('d M Y') ?? '3 bulan dari tanggal kunjungan' }}<br>
+                * Diterbitkan resmi oleh Gem Pearls Jewelry, Lombok NTB
+            </div>
+        </div>
+        <div style="display:table-cell; width:45%; vertical-align:top; text-align:right;">
+            <div style="margin-bottom:3px;">
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">GEM Pearls Lombok</div>
+                <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">081916088775</div>
+            </div>
+            <div style="margin-bottom:3px;">
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Transport Anda</div>
+                <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">0817141818</div>
+            </div>
+            <div>
+                <div style="font-size:8px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">GEM Resto</div>
+                <div style="font-weight:bold; color:#1e3a5f; font-size:11px;">08175713400 · 081236450391</div>
+            </div>
+        </div>
     </div>
-    <div class="footer-contact" style="margin-top: 8px; font-size: 12px;">
-        📞 GEM Pearls Lombok: <strong>081916088775</strong><br>
-        🚗 Transport Anda: <strong>0817141818</strong><br>
-        🍽️ GEM Resto: <strong>08175713400</strong> & <strong>081236450391</strong>
-    </div>
-    <div class="footer-generated">
+    <div style="font-size:9px; color:#94a3b8; text-align:center; margin-top:6px; border-top:1px solid #e2e8f0; padding-top:4px;">
         Generated by Gem Pearls Lombok · {{ now()->format('d/m/Y H:i') }}
     </div>
 </div>

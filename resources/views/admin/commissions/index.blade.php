@@ -10,6 +10,14 @@
             <h1 class="text-xl font-bold text-slate-800">Komisi Partner</h1>
             <p class="text-sm text-slate-400 mt-0.5">Tracking komisi travel agent & freelance</p>
         </div>
+        <form method="GET" class="flex gap-2">
+    <input type="text" name="search" value="{{ $search ?? '' }}"
+        placeholder="Cari partner, sticker..."
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white w-64">
+    <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition">
+        Cari
+    </button>
+</form>
         <button onclick="document.getElementById('create-commission-modal').classList.remove('hidden')"
             class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -17,6 +25,7 @@
             </svg>
             Buat Komisi
         </button>
+
     </div>
 
     @if(session('success'))
@@ -118,15 +127,15 @@
                                         </button>
                                     </form>
                                 @endif
-                                {{-- PDF --}}
-                                @if($commission->status === 'paid')
-                                    <a href="{{ route('admin.commissions.pdf', $commission) }}" target="_blank"
-                                        class="p-1.5 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 transition" title="Download PDF">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
-                                        </svg>
-                                    </a>
-                                @endif
+                                {{-- JPG --}}
+@if($commission->status === 'paid')
+    <button onclick="downloadAsJpg('{{ route('admin.commissions.view', $commission) }}', 'komisi-{{ $commission->partner->name }}-{{ $commission->commission_date->format('d-m-Y') }}')"
+        class="p-1.5 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 transition" title="Download JPG">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
+        </svg>
+    </button>
+@endif
                                 {{-- Delete --}}
                                 <form action="{{ route('admin.commissions.destroy', $commission) }}" method="POST"
                                     onsubmit="return confirm('Hapus komisi ini?')">
@@ -329,5 +338,50 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function downloadAsJpg(url, filename) {
+    const loadingEl = document.createElement('div');
+    loadingEl.innerHTML = '<div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;"><div style="background:white;padding:24px;border-radius:12px;font-weight:600;">Membuat gambar...</div></div>';
+    document.body.appendChild(loadingEl);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1px;border:none;';
+    document.body.appendChild(iframe);
+
+    iframe.onload = function() {
+        setTimeout(function() {
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            const body = doc.body;
+            const height = Math.max(body.scrollHeight, body.offsetHeight);
+            iframe.style.height = height + 'px';
+
+            setTimeout(function() {
+                html2canvas(body, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    width: 794,
+                    height: height,
+                    windowWidth: 794,
+                }).then(function(canvas) {
+                    const link = document.createElement('a');
+                    link.download = filename + '.jpg';
+                    link.href = canvas.toDataURL('image/jpeg', 0.95);
+                    link.click();
+                    document.body.removeChild(iframe);
+                    document.body.removeChild(loadingEl);
+                });
+            }, 500);
+        }, 300);
+    };
+
+    iframe.src = url;
+}
+</script>
+@endpush
+
 
 @endsection

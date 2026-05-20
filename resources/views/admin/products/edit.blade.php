@@ -13,7 +13,6 @@
 
 <div class="max-w-2xl mx-auto">
 
-    {{-- Header --}}
     <div class="flex items-center gap-3 mb-5">
         <a href="{{ route('admin.products.index') }}"
             class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition">
@@ -30,32 +29,57 @@
     @if($errors->any())
     <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">
         <ul class="list-disc list-inside space-y-1">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
+            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
         </ul>
     </div>
     @endif
 
+    @php
+        $currentCategoryCode = $categoryMapReverse[$product->category] ?? 'PER';
+        $currentSubcategoryCode = $product->jewelry_type ?? '';
+        $currentTier = $product->price_tier ?? '';
+    @endphp
+
     <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-4">
         @csrf @method('PUT')
 
-        {{-- Info Produk --}}
         <div class="card p-5">
             <p class="section-title">Informasi Produk</p>
-
             <div class="space-y-4">
+
+                {{-- Nama --}}
                 <div>
                     <label class="label">Nama Produk</label>
                     <input type="text" name="name" value="{{ old('name', $product->name) }}" required class="input-field">
                 </div>
 
+                {{-- Kategori (readonly) --}}
                 <div>
                     <label class="label">Kategori</label>
-                    <input type="text" value="{{ ucfirst($product->category) }}" readonly class="input-field">
+                    <input type="text" value="{{ $categories[$currentCategoryCode] ?? ucfirst($product->category) }} ({{ $currentCategoryCode }})" readonly class="input-field">
                     <p class="text-xs text-slate-400 mt-1">Kategori tidak bisa diubah setelah produk dibuat</p>
                 </div>
 
+                {{-- Subkategori (readonly) --}}
+                @if($currentSubcategoryCode)
+                <div>
+                    <label class="label">Subkategori</label>
+                    @php
+                        $subLabel = $subcategories[$currentCategoryCode][$currentSubcategoryCode] ?? $currentSubcategoryCode;
+                    @endphp
+                    <input type="text" value="{{ $currentSubcategoryCode }} — {{ $subLabel }}" readonly class="input-field">
+                </div>
+                @endif
+
+                {{-- Tier (readonly) --}}
+                @if($currentTier)
+                <div>
+                    <label class="label">Tier Harga</label>
+                    <input type="text" value="Tier {{ $currentTier }} — {{ $priceTiers[$currentTier] ?? '-' }}" readonly class="input-field">
+                </div>
+                @endif
+
+                {{-- Harga & Stok --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="label">Harga (IDR)</label>
@@ -81,6 +105,7 @@
                     <label class="label">Deskripsi</label>
                     <textarea name="description" rows="3" class="input-field" style="resize:none;">{{ old('description', $product->description) }}</textarea>
                 </div>
+
             </div>
         </div>
 
@@ -93,8 +118,7 @@
                 @foreach($product->photos as $photo)
                 <div class="relative">
                     <img src="{{ Storage::url($photo->photo_path) }}"
-                        class="w-20 h-20 rounded-xl object-cover border-2
-                        {{ $photo->is_primary ? 'border-blue-400' : 'border-slate-200' }}">
+                        class="w-20 h-20 rounded-xl object-cover border-2 {{ $photo->is_primary ? 'border-blue-400' : 'border-slate-200' }}">
                     @if($photo->is_primary)
                         <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="white" class="w-3 h-3">
@@ -110,10 +134,9 @@
             <label class="label">Upload Foto Baru</label>
             <input type="file" name="photos[]" multiple accept="image/*"
                 class="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 cursor-pointer">
-            <p class="text-xs text-slate-400 mt-2">Foto baru akan ditambahkan ke produk</p>
+            <p class="text-xs text-slate-400 mt-2">Foto baru akan ditambahkan. Maks 2MB, otomatis dikompres.</p>
         </div>
 
-        {{-- Actions --}}
         <div class="flex gap-3">
             <a href="{{ route('admin.products.index') }}"
                 class="flex-1 text-center py-3 rounded-xl border border-slate-200 text-sm text-slate-500 hover:bg-slate-50 transition font-medium">

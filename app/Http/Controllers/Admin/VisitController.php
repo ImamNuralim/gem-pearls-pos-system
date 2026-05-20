@@ -8,17 +8,24 @@ use Illuminate\Http\Request;
 
 class VisitController extends Controller
 {
-    public function index()
-    {
-        $visits = PartnerVisit::with(['partner', 'vehicles', 'guides'])
-            ->latest()
-            ->get();
+    public function index(Request $request)
+{
+    $search = $request->search;
 
-        $partnerVisits = $visits->where('visit_type', 'partner');
-        $walkinVisits  = $visits->where('visit_type', 'walk_in');
+    $visits = PartnerVisit::with(['partner', 'vehicles', 'guides'])
+        ->when($search, function($q) use ($search) {
+            $q->where('visit_code', 'like', "%{$search}%")
+              ->orWhereHas('partner', fn($q) => $q->where('name', 'like', "%{$search}%"))
+              ->orWhereHas('guides', fn($q) => $q->where('name', 'like', "%{$search}%"));
+        })
+        ->latest()
+        ->get();
 
-        return view('admin.visits.index', compact('visits', 'partnerVisits', 'walkinVisits'));
-    }
+    $partnerVisits = $visits->where('visit_type', 'partner');
+    $walkinVisits  = $visits->where('visit_type', 'walk_in');
+
+    return view('admin.visits.index', compact('visits', 'partnerVisits', 'walkinVisits', 'search'));
+}
 
     public function todayVisits(Request $request)
 {

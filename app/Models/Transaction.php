@@ -16,7 +16,7 @@ class Transaction extends Model
     'subtotal', 'points_redeemed', 'points_discount',
     'total', 'is_negotiated', 'payment_method',
     'currency_code', 'currency_rate', 'admin_fee',
-    'amount_paid', 'change_amount', 'customer_phone', 'status', 'is_printed', 'receipt_token'
+    'amount_paid', 'change_amount', 'customer_phone', 'status', 'is_printed', 'receipt_token', 'sales_staff_id'
 ];
 
     protected $casts = [
@@ -68,5 +68,9 @@ class Transaction extends Model
     public function visit()
 {
     return $this->belongsTo(\App\Models\PartnerVisit::class, 'partner_visit_id');
+}
+public function salesStaff()
+{
+    return $this->belongsTo(SalesStaff::class);
 }
 }

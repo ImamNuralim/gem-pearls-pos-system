@@ -7,14 +7,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            width: 320px;
-            margin: 0 auto;
-            padding: 12px;
-            background: #fff;
-            color: #1a1a1a;
-        }
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    width: 320px;
+    margin: 0 auto;
+    padding: 12px;
+    background: #fff;
+    color: #000;
+}
 
         .header {
             text-align: center;
@@ -170,16 +171,14 @@
             font-size: 13px;
             font-family: Arial, sans-serif;
         }
-
-       @media print {
+@media print {
     @page {
         size: 80mm auto;
-        margin: 0;
+        margin: 0mm;
     }
     body {
-        width: 80mm;
-        margin: 0;
-        padding: 5px;
+        width: 76mm;
+        padding: 2mm;
     }
     .no-print { display: none; }
 }
@@ -199,7 +198,9 @@
     {{-- Info Transaksi --}}
     <div class="row"><span class="label">Invoice</span><span class="value">{{ $transaction->invoice_number }}</span></div>
     <div class="row"><span class="label">Tanggal</span><span class="value">{{ $transaction->created_at->format('d/m/Y H:i') }}</span></div>
-    <div class="row"><span class="label">Kasir</span><span class="value">{{ $transaction->user->name ?? '-' }}</span></div>
+    @if($transaction->salesStaff)
+<div class="row"><span class="label">Sales</span><span class="value">{{ $transaction->salesStaff->name }}</span></div>
+@endif
     <div class="row"><span class="label">Customer</span><span class="value">{{ ucfirst(str_replace('_', ' ', $transaction->customer_type)) }}</span></div>
     @if($transaction->partner)
         <div class="row"><span class="label">Mitra</span><span class="value">{{ $transaction->partner->name }}</span></div>

@@ -11,66 +11,67 @@ use App\Models\Guide;
 
 class CommissionController extends Controller
 {
-    public function index()
-    {
-        $commissions = Commission::with(['partner', 'visit'])
-            ->latest('commission_date')
-            ->latest()
-            ->get();
+    public function index(Request $request)
+{
+    $search = $request->search;
 
-        // Visit completed yang belum punya komisi
-        $availableVisits = PartnerVisit::with(['partner', 'vehicles', 'guides'])
-    ->where('visit_type', 'partner')
-    ->where('status', 'completed')
-    ->whereNotIn('id', Commission::whereNotNull('partner_visit_id')->pluck('partner_visit_id'))
-    ->whereDoesntHave('transactions', function($q) {
-        $q->whereNull('partner_visit_id');
-    })
-    ->get();
+    $commissions = Commission::with(['partner', 'visit'])
+        ->when($search, function($q) use ($search) {
+            $q->whereHas('partner', fn($q) => $q->where('name', 'like', "%{$search}%"))
+              ->orWhere('sticker_number', 'like', "%{$search}%");
+        })
+        ->latest('commission_date')
+        ->latest()
+        ->get();
 
-        return view('admin.commissions.index', compact('commissions', 'availableVisits'));
-    }
+    $availableVisits = PartnerVisit::with(['partner', 'vehicles', 'guides'])
+        ->where('visit_type', 'partner')
+        ->where('status', 'completed')
+        ->whereNotIn('id', Commission::whereNotNull('partner_visit_id')->pluck('partner_visit_id'))
+        ->get();
+
+    return view('admin.commissions.index', compact('commissions', 'availableVisits', 'search'));
+}
 
     public function store(Request $request)
+    {
 
-{
+        $request->validate([
+            'partner_visit_id' => 'required|exists:partner_visits,id',
+            'commission_rate' => 'required|numeric|min:0|max:100',
+        ]);
 
-    $request->validate([
-        'partner_visit_id' => 'required|exists:partner_visits,id',
-        'commission_rate'  => 'required|numeric|min:0|max:100',
-    ]);
+        $visit = PartnerVisit::with(['partner', 'guides'])->findOrFail($request->partner_visit_id);
 
-    $visit = PartnerVisit::with(['partner', 'guides'])->findOrFail($request->partner_visit_id);
+        $rate = (float) $request->commission_rate;
+        $amount = $visit->total_sales * ($rate / 100);
 
-    $rate   = (float) $request->commission_rate;
-    $amount = $visit->total_sales * ($rate / 100);
+        $commission = Commission::create([
+            'partner_id' => $visit->partner_id,
+            'partner_visit_id' => $visit->id,
+            'sticker_number' => $visit->sticker_number,
+            'group_description' => $visit->group_description,
+            'visit_date' => $visit->visit_date,
+            'pickup_deadline' => $visit->pickup_deadline,
+            'vehicle_notes' => $visit->vehicle_notes,
+            'commission_date' => now()->toDateString(),
+            'total_sales' => $visit->total_sales,
+            'commission_rate' => $rate,
+            'commission_amount' => $amount,
+            'status' => 'unpaid',
+        ]);
 
-    $commission = Commission::create([
-        'partner_id'        => $visit->partner_id,
-        'partner_visit_id'  => $visit->id,
-        'sticker_number'    => $visit->sticker_number,
-        'group_description' => $visit->group_description,
-        'visit_date'        => $visit->visit_date,
-        'pickup_deadline'   => $visit->pickup_deadline,
-        'vehicle_notes'     => $visit->vehicle_notes,
-        'commission_date'   => now()->toDateString(),
-        'total_sales'       => $visit->total_sales,
-        'commission_rate'   => $rate,
-        'commission_amount' => $amount,
-        'status'            => 'unpaid',
-    ]);
+        $commission->refresh();
 
-    $commission->refresh();
+        // Update commission rate di partner
+        $visit->partner->update(['commission_rate' => $rate]);
 
-// Update commission rate di partner
-$visit->partner->update(['commission_rate' => $rate]);
+        if ($visit->guides->isNotEmpty()) {
+            $commission->guides()->attach($visit->guides->pluck('id'));
+        }
 
-if ($visit->guides->isNotEmpty()) {
-    $commission->guides()->attach($visit->guides->pluck('id'));
-}
-
-return back()->with('success', 'Komisi berhasil dibuat!');
-}
+        return back()->with('success', 'Komisi berhasil dibuat!');
+    }
 
     public function markPaid(Commission $commission)
     {
@@ -87,7 +88,7 @@ return back()->with('success', 'Komisi berhasil dibuat!');
     public function updateRate(Request $request, Commission $commission)
     {
         $request->validate(['commission_rate' => 'required|numeric|min:0|max:100']);
-        $rate   = $request->commission_rate;
+        $rate = $request->commission_rate;
         $amount = ($commission->total_sales * $rate) / 100;
         $commission->update(['commission_rate' => $rate, 'commission_amount' => $amount]);
         return back()->with('success', 'Persentase komisi berhasil diupdate');
@@ -96,16 +97,19 @@ return back()->with('success', 'Komisi berhasil dibuat!');
     public function updateDetail(Request $request, Commission $commission)
     {
         $request->validate([
-            'sticker_number'    => 'nullable|string|max:255',
+            'sticker_number' => 'nullable|string|max:255',
             'group_description' => 'nullable|string',
-            'visit_date'        => 'nullable|date',
-            'pickup_deadline'   => 'nullable|date',
-            'vehicle_notes'     => 'nullable|string',
+            'visit_date' => 'nullable|date',
+            'pickup_deadline' => 'nullable|date',
+            'vehicle_notes' => 'nullable|string',
         ]);
 
         $commission->update($request->only([
-            'sticker_number', 'group_description',
-            'visit_date', 'pickup_deadline', 'vehicle_notes',
+            'sticker_number',
+            'group_description',
+            'visit_date',
+            'pickup_deadline',
+            'vehicle_notes',
         ]));
 
         return back()->with('success', 'Detail komisi berhasil diupdate');
@@ -130,4 +134,8 @@ return back()->with('success', 'Komisi berhasil dibuat!');
 
         return back()->with('success', 'Guide berhasil ditambahkan');
     }
+    public function viewPdf(Commission $commission)
+{
+    return view('admin.commissions.pdf', compact('commission'));
+}
 }

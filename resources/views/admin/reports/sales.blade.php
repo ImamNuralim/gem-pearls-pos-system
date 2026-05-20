@@ -150,7 +150,7 @@
                             @endif
                         </td>
                         <td class="py-3 px-5 text-slate-600">{{ $item->quantity }}</td>
-                        <td class="py-3 px-5 text-slate-600 text-xs">{{ $trx->user->name ?? '-' }}</td>
+                        <td class="py-3 px-5 text-xs text-slate-500">{{ $trx->salesStaff->name ?? $trx->user->name ?? '-' }}</td>
                         <td class="py-3 px-5">
                             @if($trx->member)
                                 <div class="font-semibold text-amber-500 text-sm">{{ $trx->member->name }}</div>

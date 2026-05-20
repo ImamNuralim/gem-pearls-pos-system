@@ -14,6 +14,7 @@
         <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-700 text-sm font-bold">
             {{ $visits->count() }} Total Visit
         </span>
+
     </div>
 
     {{-- Tabs --}}
@@ -36,6 +37,14 @@
                 {{ $walkinVisits->count() }}
             </span>
         </button>
+        <form method="GET" class="flex gap-2">
+    <input type="text" name="search" value="{{ $search ?? '' }}"
+        placeholder="Cari kode visit, partner, guide..."
+        class="px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white w-64">
+    <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition">
+        Cari
+    </button>
+</form>
     </div>
 
     {{-- TAB: Partner --}}
