@@ -385,7 +385,8 @@
                                     Keterangan</th>
                                 <th class="text-left px-4 py-3 text-xs font-700 text-gray-400 uppercase tracking-wide">
                                     Status</th>
-                                    <th class="text-left px-4 py-3 text-xs font-700 text-gray-400 uppercase tracking-wide">Aksi</th>
+                                <th class="text-left px-4 py-3 text-xs font-700 text-gray-400 uppercase tracking-wide">Aksi
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -426,7 +427,8 @@
                                             <div class="space-y-0.5">
                                                 @foreach ($visit->vehicles as $v)
                                                     <div class="text-xs text-slate-600 font-medium">{{ $v->plate_number }}
-                                                        <span class="text-gray-400">· {{ $v->vehicle_type }}</span></div>
+                                                        <span class="text-gray-400">· {{ $v->vehicle_type }}</span>
+                                                    </div>
                                                 @endforeach
                                             </div>
                                         @endif
@@ -470,14 +472,76 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
-    <button onclick="document.getElementById('edit-visit-modal-{{ $visit->id }}').classList.remove('hidden')"
-        class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition" title="Edit">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z"/>
-        </svg>
-    </button>
-</td>
+                                        <button
+                                            onclick="document.getElementById('edit-visit-modal-{{ $visit->id }}').classList.remove('hidden')"
+                                            class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition"
+                                            title="Edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                                            </svg>
+                                        </button>
+                                    </td>
                                 </tr>
+
+                                {{-- Edit Modal --}}
+                                <div id="edit-visit-modal-{{ $visit->id }}"
+                                    class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                                    <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
+                                        <button
+                                            onclick="document.getElementById('edit-visit-modal-{{ $visit->id }}').classList.add('hidden')"
+                                            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M6 18 18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                        <h2 class="text-lg font-bold text-slate-800 mb-1">Edit Kunjungan</h2>
+                                        <p class="text-xs text-slate-400 mb-5">{{ $visit->visit_code }}</p>
+
+                                        <form method="POST" action="{{ route('security.visits.update', $visit) }}"
+                                            class="space-y-4">
+                                            @csrf @method('PUT')
+
+                                            <div>
+                                                <label
+                                                    class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">Sticker</label>
+                                                <input type="text" name="sticker_number"
+                                                    value="{{ $visit->sticker_number }}"
+                                                    class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
+                                            </div>
+
+                                            <div>
+                                                <label
+                                                    class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">Keterangan</label>
+                                                <input type="text" name="group_description"
+                                                    value="{{ $visit->group_description }}"
+                                                    class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
+                                            </div>
+
+                                            <div>
+                                                <label
+                                                    class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">Status</label>
+                                                <select name="status"
+                                                    class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
+                                                    <option value="pending"
+                                                        {{ $visit->status === 'pending' ? 'selected' : '' }}>Pending
+                                                    </option>
+                                                    <option value="completed"
+                                                        {{ $visit->status === 'completed' ? 'selected' : '' }}>Completed
+                                                    </option>
+                                                </select>
+                                            </div>
+
+                                            <button type="submit"
+                                                class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition">
+                                                Simpan Perubahan
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                             @endforeach
                         </tbody>
                     </table>
@@ -524,47 +588,7 @@
         </div>
     </div>
 
-    {{-- Edit Modal --}}
-<div id="edit-visit-modal-{{ $visit->id }}" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
-        <button onclick="document.getElementById('edit-visit-modal-{{ $visit->id }}').classList.add('hidden')"
-            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
-            </svg>
-        </button>
-        <h2 class="text-lg font-bold text-slate-800 mb-1">Edit Kunjungan</h2>
-        <p class="text-xs text-slate-400 mb-5">{{ $visit->visit_code }}</p>
 
-        <form method="POST" action="{{ route('security.visits.update', $visit) }}" class="space-y-4">
-            @csrf @method('PUT')
-
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">Sticker</label>
-                <input type="text" name="sticker_number" value="{{ $visit->sticker_number }}"
-                    class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">Keterangan</label>
-                <input type="text" name="group_description" value="{{ $visit->group_description }}"
-                    class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">Status</label>
-                <select name="status" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
-                    <option value="pending" {{ $visit->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="completed" {{ $visit->status === 'completed' ? 'selected' : '' }}>Completed</option>
-                </select>
-            </div>
-
-            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition">
-                Simpan Perubahan
-            </button>
-        </form>
-    </div>
-</div>
 
     {{-- Partner Modal --}}
     <div id="partner-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
