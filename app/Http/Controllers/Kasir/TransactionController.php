@@ -117,7 +117,7 @@ class TransactionController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.final_price' => 'required|numeric|min:0',
             'customer_type' => 'required|in:walk_in,travel_agent,freelance_guide,member',
-            'payment_method' => 'required|in:cash,qris,card',
+            'payment_method' => 'required|in:cash,qris,qris_bni,qris_mandiri,card,card_bca,card_mandiri,card_bri,card_bni',
             'amount_paid' => 'required|numeric|min:0',
         ]);
 

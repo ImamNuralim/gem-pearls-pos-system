@@ -185,6 +185,25 @@
 
     <div x-data="posSystem()" x-init="init()" class="grid grid-cols-12 gap-4" style="min-height: calc(100vh - 80px)">
 
+        {{-- Preview Modal --}}
+    <div x-show="previewProduct" x-cloak class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+        @click="previewProduct = null">
+        <div class="relative max-w-sm w-full" @click.stop>
+            <button @click="previewProduct = null"
+                class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-slate-600 flex items-center justify-center shadow-lg z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <img :src="previewProduct?.photo" class="w-full rounded-2xl object-cover shadow-2xl">
+            <div class="bg-white rounded-xl p-3 mt-2 shadow-lg">
+                <p class="font-bold text-slate-800 text-sm" x-text="previewProduct?.name"></p>
+                <p class="text-xs text-slate-400" x-text="previewProduct?.sku"></p>
+                <p class="text-blue-600 font-bold mt-1" x-text="previewProduct?.price_formatted"></p>
+            </div>
+        </div>
+    </div>
         {{-- KIRI: Produk --}}
         <div class="col-span-7 flex flex-col gap-3">
 
@@ -215,22 +234,36 @@
             <div class="card p-3 overflow-y-auto" style="max-height: calc(100vh - 200px)">
                 <div class="grid grid-cols-3 gap-2">
                     <template x-for="product in filteredProducts" :key="product.id">
-                        <div @click="addToCart(product)" class="product-card">
-                            <div
-                                class="w-full bg-slate-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                                <template x-if="product.photo">
-                                    <img :src="product.photo" class="aspect-square w-full h-full object-cover rounded-lg">
-                                </template>
-                                <template x-if="!product.photo">
-                                    <span class="text-3xl" x-text="product.category === 'perhiasan' ? '💍' : '🎁'"></span>
-                                </template>
-                            </div>
-                            <p class="text-xs font-semibold text-slate-700 truncate" x-text="product.name"></p>
-                            <p class="text-xs text-slate-400 truncate" x-text="product.sku"></p>
-                            <p class="text-sm font-bold text-blue-600 mt-1" x-text="product.price_formatted"></p>
-                            <div class="flex items-center justify-between mt-1">
-                                <span class="text-xs text-slate-400">Stok: <span class="font-semibold text-slate-600"
-                                        x-text="product.stock"></span></span>
+                        <div class="product-card relative">
+                            <button x-show="product.photo" @click.stop="previewProduct = product"
+                                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center shadow z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5 text-slate-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                </svg>
+                            </button>
+                            <div @click="addToCart(product)">
+                                <div
+                                    class="w-full bg-slate-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                                    <template x-if="product.photo">
+                                        <img :src="product.photo"
+                                            class="aspect-square w-full h-full object-cover rounded-lg">
+                                    </template>
+                                    <template x-if="!product.photo">
+                                        <span class="text-3xl"
+                                            x-text="product.category === 'perhiasan' ? '💍' : '🎁'"></span>
+                                    </template>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 truncate" x-text="product.name"></p>
+                                <p class="text-xs text-slate-400 truncate" x-text="product.sku"></p>
+                                <p class="text-sm font-bold text-blue-600 mt-1" x-text="product.price_formatted"></p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="text-xs text-slate-400">Stok: <span class="font-semibold text-slate-600"
+                                            x-text="product.stock"></span></span>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -486,6 +519,42 @@
                         </button>
                     </template>
                 </div>
+                {{-- QRIS Options --}}
+                <div x-show="paymentMethod === 'qris'" x-transition class="grid grid-cols-2 gap-2 mb-3">
+                    <button type="button" @click="selectedQris = 'qris_bni'"
+                        :class="selectedQris === 'qris_bni' ? 'border-blue-400 bg-blue-50 text-blue-700 font-bold' :
+                            'border-slate-200 text-slate-500'"
+                        class="py-2.5 rounded-xl border text-xs font-semibold transition">
+                        QRIS BNI
+                    </button>
+                    <button type="button" @click="selectedQris = 'qris_mandiri'"
+                        :class="selectedQris === 'qris_mandiri' ? 'border-blue-400 bg-blue-50 text-blue-700 font-bold' :
+                            'border-slate-200 text-slate-500'"
+                        class="py-2.5 rounded-xl border text-xs font-semibold transition">
+                        QRIS Mandiri
+                    </button>
+                </div>
+
+                {{-- Card Options --}}
+                <div x-show="paymentMethod === 'card'" x-transition class="grid grid-cols-2 gap-2 mb-3">
+                    <button type="button" @click="selectedCard = 'card_bca'"
+                        :class="selectedCard === 'card_bca' ? 'border-blue-400 bg-blue-50 text-blue-700 font-bold' :
+                            'border-slate-200 text-slate-500'"
+                        class="py-2.5 rounded-xl border text-xs font-semibold transition">BCA</button>
+                    <button type="button" @click="selectedCard = 'card_mandiri'"
+                        :class="selectedCard === 'card_mandiri' ? 'border-blue-400 bg-blue-50 text-blue-700 font-bold' :
+                            'border-slate-200 text-slate-500'"
+                        class="py-2.5 rounded-xl border text-xs font-semibold transition">Mandiri</button>
+                    <button type="button" @click="selectedCard = 'card_bri'"
+                        :class="selectedCard === 'card_bri' ? 'border-blue-400 bg-blue-50 text-blue-700 font-bold' :
+                            'border-slate-200 text-slate-500'"
+                        class="py-2.5 rounded-xl border text-xs font-semibold transition">BRI</button>
+                    <button type="button" @click="selectedCard = 'card_bni'"
+                        :class="selectedCard === 'card_bni' ? 'border-blue-400 bg-blue-50 text-blue-700 font-bold' :
+                            'border-slate-200 text-slate-500'"
+                        class="py-2.5 rounded-xl border text-xs font-semibold transition">BNI</button>
+                </div>
+
 
                 {{-- Cash: mata uang --}}
                 <div x-show="paymentMethod === 'cash'" x-transition class="mb-3 space-y-2">
@@ -518,8 +587,8 @@
                                 <span x-text="formatForeign(totalInForeign)"></span> <span x-text="currencyCode"></span>
                             </p>
                             <p class="text-xs text-slate-400 mt-0.5"
-                                x-text="'Kurs: 1 ' + currencyCode + ' = Rp ' + formatNumber(currencyRate)"></p>
-                            <p class="text-xs text-orange-500">+ Admin fee Rp 1.000</p>
+                                x-text="'1 ' + currencyCode + ' = Rp ' + formatNumber(currencyRate - 1000) + ' + Biaya Layanan Rp 1.000'">
+                            </p>
                             <p class="text-xs text-slate-400" x-text="'Update kurs: ' + currencyUpdatedAt"></p>
                         </div>
                     </div>
@@ -680,7 +749,7 @@
                     customerType: 'walk_in',
                     customerTypes: [{
                             value: 'walk_in',
-                            label: 'Walk-in (No Guide)',
+                            label: 'No Guide',
                             icon: 'user'
                         },
                         {
@@ -711,6 +780,8 @@
                     selectedMember: null,
                     pointsToRedeem: 0,
                     paymentMethod: 'cash',
+                    selectedQris: '',
+                    selectedCard: '',
                     paymentMethods: [{
                             value: 'cash',
                             label: 'Cash',
@@ -744,6 +815,8 @@
                     showSuccessModal: false,
                     lastTransaction: null,
                     selectedSalesId: '',
+                    previewProduct: null,
+                    longPressTimer: null,
 
                     init() {
                         this.filteredProducts = this.allProducts;
@@ -857,6 +930,21 @@
                         const res = await fetch(`/kasir/search-partner?q=${this.partnerSearch}&type=${type}`);
                         this.partnerResults = await res.json();
                     },
+                    isLongPress: false,
+
+                    startLongPress(product) {
+                        this.isLongPress = false;
+                        this.longPressTimer = setTimeout(() => {
+                            this.isLongPress = true;
+                            if (product.photo) {
+                                this.previewProduct = product;
+                            }
+                        }, 600);
+                    },
+
+                    cancelLongPress() {
+                        clearTimeout(this.longPressTimer);
+                    },
 
                     async fetchTodayVisits(type) {
                         try {
@@ -914,8 +1002,9 @@
                             this.currencyRate = 1;
                             this.adminFee = 0;
                         } else {
-                            this.adminFee = 1000;
-                            this.currencyRate = this.currencyRates[this.currencyCode] || 15000;
+                            const baseRate = this.currencyRates[this.currencyCode] || 15000;
+                            this.currencyRate = baseRate + 1000;
+                            this.adminFee = 0;
                         }
                         this.amountPaid = 0;
                         this.changeAmount = 0;
@@ -926,7 +1015,7 @@
                     calculateTotal() {
                         this.subtotal = this.cart.reduce((sum, item) => sum + (item.final_price * item.quantity), 0);
                         this.pointsDiscount = Math.min(this.pointsToRedeem * 100, this.subtotal);
-                        this.total = this.subtotal - this.pointsDiscount + this.adminFee;
+                        this.total = this.subtotal - this.pointsDiscount;
                         if (this.currencyCode !== 'IDR' && this.currencyRate > 0) {
                             this.totalInForeign = parseFloat((this.total / this.currencyRate).toFixed(2));
                         } else {
@@ -969,6 +1058,14 @@
                             alert('Pilih Sales / Kasir terlebih dahulu!');
                             return;
                         }
+                        if (this.paymentMethod === 'qris' && !this.selectedQris) {
+                            alert('Pilih jenis QRIS terlebih dahulu!');
+                            return;
+                        }
+                        if (this.paymentMethod === 'card' && !this.selectedCard) {
+                            alert('Pilih jenis kartu terlebih dahulu!');
+                            return;
+                        }
                         if (this.paymentMethod === 'cash' && this.amountPaid <= 0) {
                             alert('Masukkan jumlah uang yang dibayar!');
                             return;
@@ -978,6 +1075,11 @@
                             alert('Uang yang dibayar kurang!');
                             return;
                         }
+
+                        // Tentukan payment method final
+                        const finalPaymentMethod = this.paymentMethod === 'qris' ? this.selectedQris :
+                            this.paymentMethod === 'card' ? this.selectedCard :
+                            this.paymentMethod;
 
                         this.isProcessing = true;
                         const payload = {
@@ -992,7 +1094,7 @@
                             partner_visit_id: this.selectedVisit || null,
                             member_id: this.selectedMember?.id || null,
                             points_redeemed: this.pointsToRedeem,
-                            payment_method: this.paymentMethod,
+                            payment_method: finalPaymentMethod,
                             currency_code: this.currencyCode,
                             currency_rate: this.currencyRate,
                             amount_paid: paidInIDR,
@@ -1080,6 +1182,8 @@
                         this.partnerVisits = [];
                         this.selectedVisit = null;
                         this.selectedSalesId = '';
+                        this.selectedQris = '';
+                        this.selectedCard = '';
 
                         fetch('/kasir/search-product?q=')
                             .then(r => r.json())
@@ -1092,5 +1196,6 @@
             }
         </script>
     </div>
+
 
 @endsection

@@ -19,7 +19,7 @@ class Commission extends Model
         'commission_rate',
         'commission_amount',
         'status',
-        'paid_at',
+        'paid_at', 'taken_by', 'taken_at'
     ];
 
     protected $casts = [
@@ -29,6 +29,7 @@ class Commission extends Model
         'visit_date' => 'date',
         'pickup_deadline' => 'date',
         'commission_date' => 'date',
+    'taken_at'        => 'datetime'
     ];
 
     public function partner()

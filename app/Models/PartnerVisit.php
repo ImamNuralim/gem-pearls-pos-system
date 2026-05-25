@@ -52,7 +52,12 @@ class PartnerVisit extends Model
         return $this->belongsToMany(Guide::class, 'partner_visit_guides');
     }
     public function commissions()
+    {
+        return $this->hasMany(\App\Models\Commission::class, 'partner_visit_id');
+    }
+
+    public function drivers()
 {
-    return $this->hasMany(\App\Models\Commission::class, 'partner_visit_id');
+    return $this->belongsToMany(Driver::class, 'partner_visit_driver');
 }
 }

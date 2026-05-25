@@ -215,7 +215,7 @@
                         <td class="px-5 py-3 font-bold text-blue-600 text-xs">{{ $trx->invoice_number }}</td>
                         <td class="px-5 py-3">
                             @if($trx->customer_type === 'walk_in')
-                                <span class="px-2 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold">Walk-in</span>
+                                <span class="px-2 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold">Walk-in/No Guide</span>
                             @elseif($trx->customer_type === 'travel_agent')
                                 <span class="px-2 py-1 rounded-lg bg-blue-100 text-blue-600 text-xs font-semibold">Travel Agent</span>
                             @elseif($trx->customer_type === 'freelance_guide')

@@ -79,21 +79,23 @@
                 </div>
                 @endif
 
-                {{-- Harga & Stok --}}
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="label">Harga (IDR)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">Rp</span>
-                            <input type="number" name="price" value="{{ old('price', $product->price) }}" required
-                                class="input-field" style="padding-left:36px;">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="label">Stok</label>
-                        <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" required class="input-field">
-                    </div>
-                </div>
+    <div>
+        <label class="label">Harga (IDR)</label>
+        <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold">Rp</span>
+            <input type="text" id="price-display"
+                value="{{ number_format(old('price', $product->price), 0, ',', '.') }}"
+                class="input-field" style="padding-left:36px;"
+                oninput="let r=this.value.replace(/\D/g,''); this.value=r?new Intl.NumberFormat('id-ID').format(r):''; document.getElementById('price-value').value=r;">
+            <input type="hidden" name="price" id="price-value" value="{{ old('price', $product->price) }}">
+        </div>
+    </div>
+    <div>
+        <label class="label">Stok</label>
+        <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" required class="input-field">
+    </div>
+</div>
 
                 <div>
                     <label class="label">Batas Notifikasi Stok Menipis</label>
@@ -152,5 +154,14 @@
         </div>
 
     </form>
+
 </div>
+
+<script>
+function formatPriceInput(el) {
+    let raw = el.value.replace(/\D/g, '');
+    el.value = raw ? new Intl.NumberFormat('id-ID').format(raw) : '';
+    document.getElementById('price-value').value = raw;
+}
+</script>
 @endsection

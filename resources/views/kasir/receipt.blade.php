@@ -217,7 +217,7 @@
         <div class="item-name">
             {{ $item->product_name }}
             @if($item->final_price != $item->original_price)
-                <span class="badge nego-badge">NEGO</span>
+                <span class="badge nego-badge">Diskon</span>
             @endif
         </div>
         <div class="item-detail">

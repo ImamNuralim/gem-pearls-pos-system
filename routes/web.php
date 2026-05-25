@@ -42,6 +42,15 @@ Route::post('/upload/login',  [UploadController::class, 'login'])->name('upload.
 Route::post('/upload/logout', [UploadController::class, 'logout'])->name('upload.logout');
 Route::get('/upload/create',  [UploadController::class, 'create'])->name('upload.create');
 Route::post('/upload/create', [UploadController::class, 'store'])->name('upload.store');
+Route::get('/upload/products',          [\App\Http\Controllers\UploadController::class, 'products'])->name('upload.products');
+Route::put('/upload/products/{product}', [\App\Http\Controllers\UploadController::class, 'update'])->name('upload.product.update');
+Route::delete('/upload/products/{product}', [\App\Http\Controllers\UploadController::class, 'destroyProduct'])->name('upload.product.destroy');
+
+Route::get('/komisi',         [App\Http\Controllers\CommissionAccessController::class, 'showLogin'])->name('commission.login');
+Route::post('/komisi/login',  [App\Http\Controllers\CommissionAccessController::class, 'login'])->name('commission.login.post');
+Route::post('/komisi/logout', [App\Http\Controllers\CommissionAccessController::class, 'logout'])->name('commission.logout');
+Route::get('/komisi/data',    [App\Http\Controllers\CommissionAccessController::class, 'index'])->name('commission.index');
+Route::post('/komisi/{commission}/paid', [App\Http\Controllers\CommissionAccessController::class, 'markPaid'])->name('commission.paid');
 
 // ─────────────────────────────────────────────
 // AUTHENTICATED ROUTES
@@ -124,6 +133,11 @@ Route::middleware(['auth'])->group(function () {
         Route::put('upload-users/{uploadUser}',    [UploadUserController::class, 'update'])->name('upload-users.update');
         Route::delete('upload-users/{uploadUser}', [UploadUserController::class, 'destroy'])->name('upload-users.destroy');
 
+        Route::get('commission-users',                    [\App\Http\Controllers\Admin\CommissionUserController::class, 'index'])->name('commission-users.index');
+        Route::post('commission-users',                   [\App\Http\Controllers\Admin\CommissionUserController::class, 'store'])->name('commission-users.store');
+        Route::put('commission-users/{commissionUser}',   [\App\Http\Controllers\Admin\CommissionUserController::class, 'update'])->name('commission-users.update');
+        Route::delete('commission-users/{commissionUser}',[\App\Http\Controllers\Admin\CommissionUserController::class, 'destroy'])->name('commission-users.destroy');
+
     });
 
     // ── Kasir ────────────────────────────────
@@ -146,7 +160,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('search-guides',          [DashboardController::class, 'searchGuides']);
         Route::post('visits/{visit}/status', [DashboardController::class, 'updateVisitStatus'])->name('security.visits.status');
         Route::put('visits/{visit}',         [DashboardController::class, 'updateVisit'])->name('security.visits.update');
+        Route::post('drivers/store', [DashboardController::class, 'storeDriver'])->name('security.drivers.store');
+        Route::get('search-drivers', [DashboardController::class, 'searchDrivers']);
+        Route::delete('visits/{visit}', [DashboardController::class, 'destroyVisit'])->name('security.visits.destroy');
     });
+    Route::post('/komisi',                           [App\Http\Controllers\CommissionAccessController::class, 'store'])->name('commission.store');
+    Route::delete('/komisi/{commission}',            [App\Http\Controllers\CommissionAccessController::class, 'destroy'])->name('commission.destroy');
+    Route::post('/komisi/{commission}/update-rate',  [App\Http\Controllers\CommissionAccessController::class, 'updateRate'])->name('commission.update-rate');
+    Route::post('/komisi/{commission}/update-detail', [App\Http\Controllers\CommissionAccessController::class, 'updateDetail'])->name('commission.update-detail');
+    Route::get('/komisi/{commission}/pdf', [App\Http\Controllers\CommissionAccessController::class, 'downloadPdf'])->name('commission.pdf');
+    Route::post('/komisi/{commission}/update-detail', [App\Http\Controllers\CommissionAccessController::class, 'updateDetail'])->name('commission.update-detail');
 
     // ── API ──────────────────────────────────
     Route::prefix('api')->group(function () {

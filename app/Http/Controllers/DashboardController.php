@@ -104,138 +104,95 @@ class DashboardController extends Controller
         ));
     }
     public function storeVisit(Request $request)
-    {
-        $request->validate([
+{
+    $request->validate([
+        'visit_date'          => 'required|date',
+        'sticker_number'      => 'nullable|string|max:255',
+        'group_description'   => 'nullable|string',
+        'visitor_nationality' => 'nullable|string',
+        'tour_leader_name'    => 'nullable|string',
+        'tour_leader_phone'   => 'nullable|string',
+        'visit_type_label'    => 'nullable|string',
+        'partner_id'          => 'nullable|exists:partners,id',
+    ]);
 
-            'partner_id' => 'required|exists:partners,id',
+    $lastVisit = \App\Models\PartnerVisit::latest('id')->first();
+    $number    = $lastVisit ? ((int) str_replace('VIS-', '', $lastVisit->visit_code)) + 1 : 1;
+    $visitCode = 'VIS-' . str_pad($number, 4, '0', STR_PAD_LEFT);
 
-            'sticker_number' => 'nullable|string|max:255',
+    // Tentukan visit_type berdasarkan visit_type_label
+    $visitTypeLabel = $request->visit_type_label ?? 'no_guide';
+    $visitType = $visitTypeLabel === 'no_guide' ? 'walk_in' : 'partner';
 
-            'group_description' => 'nullable|string',
+    $visit = \App\Models\PartnerVisit::create([
+        'partner_id'          => $request->partner_id,
+        'visit_code'          => $visitCode,
+        'visit_type'          => $visitType,
+        'visit_type_label'    => $visitTypeLabel,
+        'sticker_number'      => $request->sticker_number,
+        'group_description'   => $request->group_description,
+        'visit_date'          => $request->visit_date,
+        'visitor_nationality' => $request->visitor_nationality,
+        'tour_leader_name'    => $request->tour_leader_name,
+        'tour_leader_phone'   => $request->tour_leader_phone,
+        'status'              => 'pending',
+    ]);
 
-            'visit_date' => 'required|date',
-
-            'pickup_deadline' => 'nullable|date',
-
-            'vehicle_notes' => 'nullable|string',
-
-        ]);
-
-        $lastVisit = \App\Models\PartnerVisit::latest('id')->first();
-
-        $number = $lastVisit
-            ? ((int) str_replace('VIS-', '', $lastVisit->visit_code)) + 1
-            : 1;
-
-        $visitCode = 'VIS-' . str_pad($number, 4, '0', STR_PAD_LEFT);
-
-        $visit = \App\Models\PartnerVisit::create([
-
-            'partner_id' => $request->partner_id,
-
-            'visit_code' => $visitCode,
-
-            'sticker_number' => $request->sticker_number,
-
-            'group_description' => $request->group_description,
-
-            'visit_date' => $request->visit_date,
-
-            'pickup_deadline' => $request->pickup_deadline,
-
-            'vehicle_notes' => $request->vehicle_notes,
-
-            'status' => 'pending',
-
-        ]);
-
-        // Save vehicles
-        if ($request->plate_numbers) {
-
-            foreach ($request->plate_numbers as $index => $plate) {
-
-                if ($plate) {
-
-                    \App\Models\CommissionVehicle::create([
-
-                        'partner_visit_id' => $visit->id,
-
-                        'plate_number' => $plate,
-
-                        'vehicle_type' =>
-                            $request->vehicle_types[$index] ?? null,
-
-                    ]);
-
-                }
-
+    // Save vehicles
+    if ($request->plate_numbers) {
+        foreach ($request->plate_numbers as $index => $plate) {
+            if ($plate) {
+                \App\Models\CommissionVehicle::create([
+                    'partner_visit_id' => $visit->id,
+                    'plate_number'     => $plate,
+                    'vehicle_type'     => $request->vehicle_types[$index] ?? null,
+                ]);
             }
-
         }
-        // Attach guides
-        if ($request->guide_ids) {
-
-            $visit->guides()->attach(
-                $request->guide_ids
-            );
-
-            \App\Models\Guide::whereIn(
-                'id',
-                $request->guide_ids
-            )->increment('total_visits');
-
-        }
-
-        return back()->with(
-            'success',
-            'Kunjungan berhasil disimpan'
-        );
     }
+
+    // Attach guides
+    if ($request->guide_ids) {
+        $visit->guides()->attach($request->guide_ids);
+        \App\Models\Guide::whereIn('id', $request->guide_ids)->increment('total_visits');
+    }
+
+    // Attach drivers
+    if ($request->driver_ids) {
+        $visit->drivers()->attach($request->driver_ids);
+    }
+
+    return back()->with('success', 'Kunjungan berhasil disimpan!');
+}
 
 
     public function storePartner(Request $request)
-    {
-        $request->validate([
+{
+    $request->validate([
+        'name'    => 'required|string|max:255',
+        'phone'   => 'nullable|string|max:30',
+        'address' => 'nullable|string',
+        'type'    => 'required|in:travel_agent,freelance_guide',
+    ]);
 
-            'name' => 'required|string|max:255',
+    $lastPartner = \App\Models\Partner::latest('id')->first();
+    $number      = $lastPartner ? ((int) str_replace('PRT-', '', $lastPartner->code)) + 1 : 1;
+    $code        = 'PRT-' . str_pad($number, 3, '0', STR_PAD_LEFT);
 
-            'phone' => 'nullable|string|max:30',
+    $partner = \App\Models\Partner::create([
+        'code'      => $code,
+        'name'      => $request->name,
+        'phone'     => $request->phone,
+        'address'   => $request->address,
+        'type'      => $request->type,
+        'is_active' => true,
+    ]);
 
-            'address' => 'nullable|string',
-
-            'type' => 'required|in:travel_agent,freelance',
-
-        ]);
-
-        $lastPartner = \App\Models\Partner::latest('id')->first();
-
-        $number = $lastPartner
-            ? ((int) str_replace('PRT-', '', $lastPartner->code)) + 1
-            : 1;
-
-        $code = 'PRT-' . str_pad($number, 3, '0', STR_PAD_LEFT);
-
-        \App\Models\Partner::create([
-
-            'code' => $code,
-
-            'name' => $request->name,
-
-            'phone' => $request->phone,
-
-            'address' => $request->address,
-
-            'type' => $request->type,
-
-            'is_active' => true,
-
-        ]);
-
-        return back()->with(
-            'success',
-            'Partner berhasil ditambahkan'
-        );
+    if ($request->wantsJson()) {
+        return response()->json(['success' => true, 'partner' => $partner]);
     }
+    return back()->with('success', 'Partner berhasil ditambahkan');
+}
 
     public function searchGuides(Request $request)
     {
@@ -257,36 +214,26 @@ class DashboardController extends Controller
         return response()->json($guides);
     }
     public function storeGuide(Request $request)
-    {
-        $request->validate([
+{
+    $request->validate([
+        'name'    => 'required|string|max:255',
+        'phone'   => 'nullable|string|max:30',
+        'address' => 'nullable|string',
+    ]);
 
-            'name' => 'required|string|max:255',
+    $guide = \App\Models\Guide::create([
+        'name'         => $request->name,
+        'phone'        => $request->phone,
+        'address'      => $request->address,
+        'total_visits' => 0,
+        'is_active'    => true,
+    ]);
 
-            'phone' => 'nullable|string|max:30',
-
-            'address' => 'nullable|string',
-
-        ]);
-
-        \App\Models\Guide::create([
-
-            'name' => $request->name,
-
-            'phone' => $request->phone,
-
-            'address' => $request->address,
-
-            'total_visits' => 0,
-
-            'is_active' => true,
-
-        ]);
-
-        return back()->with(
-            'success',
-            'Guide berhasil ditambahkan'
-        );
+    if ($request->wantsJson()) {
+        return response()->json(['success' => true, 'guide' => $guide]);
     }
+    return back()->with('success', 'Guide berhasil ditambahkan');
+}
     public function storeWalkin(Request $request)
 {
     $request->validate([
@@ -309,6 +256,30 @@ class DashboardController extends Controller
 
     return redirect()->back()->with('success', 'Walk-in berhasil dicatat!');
 }
+public function storeDriver(Request $request)
+{
+    $request->validate(['name' => 'required|string']);
+
+    $driver = \App\Models\Driver::create([
+        'name'  => $request->name,
+        'phone' => $request->phone,
+    ]);
+
+    if ($request->wantsJson()) {
+        return response()->json(['success' => true, 'driver' => $driver]);
+    }
+    return back()->with('success', 'Driver berhasil ditambahkan!');
+}
+
+public function searchDrivers(Request $request)
+{
+    $drivers = \App\Models\Driver::where('name', 'like', "%{$request->q}%")
+        ->orWhere('driver_code', 'like', "%{$request->q}%")
+        ->where('is_active', true)
+        ->limit(10)
+        ->get();
+    return response()->json($drivers);
+}
 public function updateVisitStatus(Request $request, \App\Models\PartnerVisit $visit)
 {
     $request->validate([
@@ -322,11 +293,35 @@ public function updateVisitStatus(Request $request, \App\Models\PartnerVisit $vi
 public function updateVisit(Request $request, \App\Models\PartnerVisit $visit)
 {
     $visit->update([
-        'sticker_number'    => $request->sticker_number,
-        'group_description' => $request->group_description,
-        'status'            => $request->status,
+        'sticker_number'      => $request->sticker_number,
+        'group_description'   => $request->group_description,
+        'visitor_nationality' => $request->visitor_nationality,
+        'status'              => $request->status,
     ]);
 
+    // Update kendaraan — hapus lama, insert baru
+    $visit->vehicles()->delete();
+    if ($request->plate_numbers) {
+        foreach ($request->plate_numbers as $index => $plate) {
+            if ($plate) {
+                \App\Models\CommissionVehicle::create([
+                    'partner_visit_id' => $visit->id,
+                    'plate_number'     => $plate,
+                    'vehicle_type'     => $request->vehicle_types[$index] ?? null,
+                ]);
+            }
+        }
+    }
+
     return back()->with('success', 'Data kunjungan berhasil diupdate!');
+}
+
+public function destroyVisit(\App\Models\PartnerVisit $visit)
+{
+    $visit->vehicles()->delete();
+    $visit->guides()->detach();
+    $visit->drivers()->detach();
+    $visit->delete();
+    return back()->with('success', 'Kunjungan berhasil dihapus!');
 }
 }

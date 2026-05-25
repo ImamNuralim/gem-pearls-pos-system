@@ -116,4 +116,47 @@ class UploadController extends Controller
 
         return back()->with('success', "Produk {$product->name} berhasil ditambahkan! SKU: {$sku}");
     }
+
+    public function edit(Product $product)
+{
+    if (!session('upload_user_id')) return redirect()->route('upload.login');
+    return response()->json($product->load('photos'));
+}
+
+public function update(Request $request, Product $product)
+{
+    if (!session('upload_user_id')) return redirect()->route('upload.login');
+    $request->validate([
+        'name'  => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'stock' => 'required|integer|min:0',
+    ]);
+    $product->update([
+        'name'  => $request->name,
+        'price' => $request->price,
+        'stock' => $request->stock,
+    ]);
+    return response()->json(['success' => true]);
+}
+
+public function destroyProduct(Product $product)
+{
+    if (!session('upload_user_id')) return redirect()->route('upload.login');
+    $product->delete();
+    return response()->json(['success' => true]);
+}
+
+public function products()
+{
+    if (!session('upload_user_id')) return redirect()->route('upload.login');
+    $products = Product::with('primaryPhoto')->latest()->get()->map(fn($p) => [
+        'id'    => $p->id,
+        'name'  => $p->name,
+        'sku'   => $p->sku,
+        'price' => $p->price,
+        'stock' => $p->stock,
+        'photo' => $p->primaryPhoto ? asset('storage/' . $p->primaryPhoto->photo_path) : null,
+    ]);
+    return response()->json($products);
+}
 }
