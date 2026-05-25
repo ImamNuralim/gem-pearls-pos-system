@@ -7,18 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class PartnerVisit extends Model
 {
     protected $fillable = [
-        'partner_id',
-        'visit_code',
-        'visit_type',
-        'sticker_number',
-        'group_description',
-        'visit_date',
-        'pickup_deadline',
-        'vehicle_notes',
-        'vehicle_description',
-        'status',
-        'total_sales'
-    ];
+    'partner_id',
+    'visit_code',
+    'visit_type',
+    'visit_type_label',
+    'sticker_number',
+    'group_description',
+    'visit_date',
+    'pickup_deadline',
+    'vehicle_notes',
+    'vehicle_description',
+    'visitor_nationality',
+    'tour_leader_name',
+    'tour_leader_phone',
+    'status',
+    'total_sales'
+];
 
     protected $casts = [
         'visit_date' => 'date',

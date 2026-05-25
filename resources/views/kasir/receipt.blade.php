@@ -10,9 +10,10 @@
     font-family: 'Courier New', monospace;
     font-size: 12px;
     font-weight: 700;
-    width: 320px;
-    margin: 0 auto;
-    padding: 12px;
+    width: 80mm;
+max-width: 80mm;
+margin: 0 auto;
+padding: 3mm;
     background: #fff;
     color: #000;
 }
@@ -173,14 +174,27 @@
         }
 @media print {
     @page {
-        size: 80mm auto;
-        margin: 0mm;
+        size: 80mm 297mm;
+        margin: 0;
     }
+
+    html, body {
+        width: 80mm;
+        min-width: 80mm;
+        max-width: 80mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
+
     body {
-        width: 76mm;
-        padding: 2mm;
+        padding: 3mm;
+        font-size: 11px;
     }
-    .no-print { display: none; }
+
+    .no-print {
+        display: none !important;
+    }
 }
     </style>
 </head>

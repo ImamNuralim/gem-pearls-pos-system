@@ -75,6 +75,8 @@
                             </th>
                             <th class="text-left px-5 py-3 text-xs font-bold uppercase tracking-wide text-slate-400">Status
                             </th>
+                            <th class="text-left px-5 py-3 text-xs font-bold uppercase tracking-wide text-slate-400">Diambil
+                                Oleh</th>
                             <th class="text-left px-5 py-3 text-xs font-bold uppercase tracking-wide text-slate-400">Aksi
                             </th>
                         </tr>
@@ -120,6 +122,15 @@
                                         {{ number_format($commission->commission_amount, 0, ',', '.') }}</div>
                                 </td>
                                 <td class="px-5 py-3.5">
+                                    @if ($commission->taken_by)
+                                        <div class="text-xs font-semibold text-slate-700">{{ $commission->taken_by }}</div>
+                                        <div class="text-xs text-slate-400">
+                                            {{ $commission->taken_at?->format('d/m/y H:i') }}</div>
+                                    @else
+                                        <span class="text-xs text-slate-300">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3.5">
                                     @if ($commission->status === 'paid')
                                         <span
                                             class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-600 text-xs font-bold">PAID</span>
@@ -129,108 +140,131 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-3.5">
-                                    <div class="flex items-center gap-1.5">
-                                        {{-- Edit --}}
-                                        <button onclick="document.getElementById('edit-modal-{{ $commission->id }}').classList.remove('hidden')"
-                                            class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition" title="Edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z"/>
-                                            </svg>
-                                        </button>
-
-                                        {{-- Mark Paid --}}
-                                        @if ($commission->status === 'unpaid')
-                                            <form action="{{ route('admin.commissions.paid', $commission) }}"
-                                                method="POST">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="p-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-600 transition"
-                                                    title="Mark Paid">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                        class="w-4 h-4">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        @endif
-                                        {{-- JPG --}}
-                                        @if ($commission->status === 'paid')
-                                            <button
-                                                onclick="downloadAsJpg('{{ route('admin.commissions.view', $commission) }}', 'komisi-{{ $commission->partner->name }}-{{ $commission->commission_date->format('d-m-Y') }}')"
-                                                class="p-1.5 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 transition"
-                                                title="Download JPG">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                    class="w-4 h-4">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                                                </svg>
-                                            </button>
-                                        @endif
-                                        {{-- Delete --}}
-                                        <form action="{{ route('admin.commissions.destroy', $commission) }}"
-                                            method="POST" onsubmit="return confirm('Hapus komisi ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-400 transition"
-                                                title="Hapus">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                    class="w-4 h-4">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            {{-- Detail Modal --}}
-                            {{-- Edit Modal --}}
-<div id="edit-modal-{{ $commission->id }}" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
-        <button onclick="document.getElementById('edit-modal-{{ $commission->id }}').classList.add('hidden')"
-            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+    <div class="flex items-center gap-1.5">
+        {{-- Edit --}}
+        <button onclick="document.getElementById('edit-modal-{{ $commission->id }}').classList.remove('hidden')"
+            class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition" title="Edit">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z"/>
             </svg>
         </button>
-        <h2 class="text-lg font-bold text-slate-800 mb-1">Edit Komisi</h2>
-        <p class="text-xs text-slate-400 mb-5">{{ $commission->partner->name ?? '-' }}</p>
-        <form action="{{ route('admin.commissions.update-detail', $commission) }}" method="POST" class="space-y-4">
-            @csrf
-            <div>
-                <label class="label">Total Belanja</label>
-                <input type="text" value="Rp {{ number_format($commission->total_sales, 0, ',', '.') }}" readonly
-                    class="input-field bg-slate-100 cursor-not-allowed text-slate-400">
-            </div>
-            <div>
-                <label class="label">Persentase Komisi (%)</label>
-                <input type="number" name="commission_rate" value="{{ $commission->commission_rate }}"
-                    step="0.01" min="0" max="100" required class="input-field">
-            </div>
-            <div>
-                <label class="label">No Sticker</label>
-                <input type="text" name="sticker_number" value="{{ $commission->sticker_number }}" class="input-field">
-            </div>
-            <div>
-                <label class="label">Deskripsi Rombongan</label>
-                <input type="text" name="group_description" value="{{ $commission->group_description }}" class="input-field">
-            </div>
-            <div>
-                <label class="label">Batas Pengambilan</label>
-                <input type="date" name="pickup_deadline" value="{{ $commission->pickup_deadline?->format('Y-m-d') }}" class="input-field">
-            </div>
-            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition">
-                Simpan
+        {{-- Print --}}
+        <button onclick="downloadAsJpg('{{ route('admin.commissions.view', $commission) }}', 'komisi-{{ $commission->partner->name }}-{{ $commission->commission_date->format('d-m-Y') }}')"
+            class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition" title="Download JPG">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z"/>
+            </svg>
+        </button>
+        {{-- Mark Paid --}}
+        @if($commission->status === 'unpaid')
+        <button onclick="document.getElementById('paid-modal-{{ $commission->id }}').classList.remove('hidden')"
+            class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 transition" title="Tandai Lunas">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+            </svg>
+        </button>
+        @endif
+        {{-- Delete --}}
+        <form action="{{ route('admin.commissions.destroy', $commission) }}" method="POST"
+            onsubmit="return confirm('Hapus komisi ini?')">
+            @csrf @method('DELETE')
+            <button type="submit" class="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-400 transition" title="Hapus">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                </svg>
             </button>
         </form>
     </div>
-</div>
+</td>
+                            </tr>
+
+                            {{-- Paid Modal --}}
+                            @if ($commission->status === 'unpaid')
+                                <div id="paid-modal-{{ $commission->id }}"
+                                    class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                                    <div class="bg-white rounded-2xl w-full max-w-sm p-6 relative">
+                                        <button
+                                            onclick="document.getElementById('paid-modal-{{ $commission->id }}').classList.add('hidden')"
+                                            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M6 18 18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                        <h2 class="text-lg font-bold text-slate-800 mb-1">Konfirmasi Pengambilan</h2>
+                                        <p class="text-xs text-slate-400 mb-5">{{ $commission->partner->name ?? '-' }}
+                                            — Rp {{ number_format($commission->commission_amount, 0, ',', '.') }}</p>
+                                        <form method="POST" action="{{ route('admin.commissions.paid', $commission) }}"
+                                            class="space-y-4">
+                                            @csrf
+                                            <div>
+                                                <label class="label">Nama yang Mengambil Komisi</label>
+                                                <input type="text" name="taken_by" required class="input-field"
+                                                    placeholder="Masukkan nama lengkap">
+                                            </div>
+                                            <button type="submit"
+                                                class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition">
+                                                Konfirmasi Lunas
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endif
+                            {{-- Edit Modal --}}
+                            <div id="edit-modal-{{ $commission->id }}"
+                                class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                                <div class="bg-white rounded-2xl w-full max-w-md p-6 relative">
+                                    <button
+                                        onclick="document.getElementById('edit-modal-{{ $commission->id }}').classList.add('hidden')"
+                                        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M6 18 18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                    <h2 class="text-lg font-bold text-slate-800 mb-1">Edit Komisi</h2>
+                                    <p class="text-xs text-slate-400 mb-5">{{ $commission->partner->name ?? '-' }}</p>
+                                    <form action="{{ route('admin.commissions.update-detail', $commission) }}"
+                                        method="POST" class="space-y-4">
+                                        @csrf
+                                        <div>
+                                            <label class="label">Total Belanja</label>
+                                            <input type="text"
+                                                value="Rp {{ number_format($commission->total_sales, 0, ',', '.') }}"
+                                                readonly
+                                                class="input-field bg-slate-100 cursor-not-allowed text-slate-400">
+                                        </div>
+                                        <div>
+                                            <label class="label">Persentase Komisi (%)</label>
+                                            <input type="number" name="commission_rate"
+                                                value="{{ $commission->commission_rate }}" step="0.01" min="0"
+                                                max="100" required class="input-field">
+                                        </div>
+                                        <div>
+                                            <label class="label">No Sticker</label>
+                                            <input type="text" name="sticker_number"
+                                                value="{{ $commission->sticker_number }}" class="input-field">
+                                        </div>
+                                        <div>
+                                            <label class="label">Deskripsi Rombongan</label>
+                                            <input type="text" name="group_description"
+                                                value="{{ $commission->group_description }}" class="input-field">
+                                        </div>
+                                        <div>
+                                            <label class="label">Batas Pengambilan</label>
+                                            <input type="date" name="pickup_deadline"
+                                                value="{{ $commission->pickup_deadline?->format('Y-m-d') }}"
+                                                class="input-field">
+                                        </div>
+                                        <button type="submit"
+                                            class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition">
+                                            Simpan
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
 
                         @empty
                             <tr>

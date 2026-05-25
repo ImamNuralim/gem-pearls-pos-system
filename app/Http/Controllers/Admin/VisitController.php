@@ -32,14 +32,12 @@ class VisitController extends Controller
     $type = $request->type;
 
     $visits = PartnerVisit::with(['partner', 'guides', 'vehicles'])
-    ->whereDate('visit_date', today())
-    ->whereIn('status', ['pending', 'shopping'])
-    ->when($type === 'walk_in', fn($q) => $q->where('visit_type', 'walk_in'))
-    ->when($type !== 'walk_in', function($q) use ($type) {
-        $q->where('visit_type', 'partner')
-          ->when($type, fn($q) => $q->whereHas('partner', fn($q) => $q->where('type', $type)));
-    })
-    ->get();
+        ->whereDate('visit_date', today())
+        ->whereIn('status', ['pending', 'shopping'])
+        ->when($type === 'walk_in', fn($q) => $q->where('visit_type_label', 'no_guide'))
+        ->when($type === 'travel_agent', fn($q) => $q->where('visit_type_label', 'travel_agent'))
+        ->when($type === 'freelance_guide', fn($q) => $q->where('visit_type_label', 'freelance'))
+        ->get();
 
     return response()->json($visits);
 }

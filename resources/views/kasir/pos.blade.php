@@ -441,9 +441,8 @@
                                         <span class="text-xs text-slate-300 line-through"
                                             x-text="formatRupiah(item.original_price)"></span>
                                     </template>
-                                    <input type="number" x-model="item.final_price" @input="calculateTotal()"
-                                        class="input-pos font-bold text-blue-600"
-                                        style="width:110px; padding: 5px 8px; font-size:12px;">
+                                    <input type="text" :value="formatNumber(item.final_price)"
+                                        @input="updateCartPrice(index, $event)" class="input-pos font-bold text-blue-600" style="width:110px; padding: 5px 8px; font-size:12px;">
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <button @click="decrementQty(index)"
@@ -598,10 +597,13 @@
                 {{-- Jumlah Bayar --}}
                 <div class="mb-3">
                     <p class="section-label mb-1.5">Jumlah Bayar (<span x-text="currencyCode"></span>)</p>
-                    <input type="number" x-model="amountPaid" @input="calculateChange()"
-                        @focus="$event.target.select()" :placeholder="'Masukkan jumlah dalam ' + currencyCode"
-                        class="input-pos font-bold" style="font-size:13px;" step="0.01" min="0">
-
+                    <input type="text"
+                        :value="formatNumber(amountPaid)"
+                        @input="updateAmountPaid($event)"
+                        @focus="$event.target.select()"
+                        :placeholder="'Masukkan jumlah dalam ' + currencyCode"
+                        class="input-pos font-bold"
+                        style="font-size:13px;">
                     <div x-show="amountPaid > 0"
                         class="mt-2 p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 space-y-1">
                         <div class="summary-row">
@@ -1044,6 +1046,28 @@
                     },
                     formatNumber(num) {
                         return new Intl.NumberFormat('id-ID').format(num);
+                    },
+                    updateCartPrice(index, event) {
+                        let raw = event.target.value
+                            .replaceAll('.', '')
+                            .replace(/[^0-9]/g, '');
+
+                        this.cart[index].final_price = raw ? parseInt(raw) : 0;
+
+                        event.target.value = this.formatNumber(this.cart[index].final_price);
+
+                        this.calculateTotal();
+                    },
+                    updateAmountPaid(event) {
+                        let raw = event.target.value
+                            .replaceAll('.', '')
+                            .replace(/[^0-9]/g, '');
+
+                        this.amountPaid = raw ? parseInt(raw) : 0;
+
+                        event.target.value = this.formatNumber(this.amountPaid);
+
+                        this.calculateChange();
                     },
                     formatForeign(amount) {
                         return new Intl.NumberFormat('en-US', {
