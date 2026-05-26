@@ -1278,8 +1278,8 @@
                                 this.filteredProducts = products;
                             });
                     },
-                    async printReceipt(transactionId, printerIp) {
-    if (!printerIp) { alert('Pilih printer dulu!'); return; }
+                    async printReceipt(transactionId, printerId) {
+    if (!printerId) { alert('Pilih printer dulu!'); return; }
     try {
         const res = await fetch('/kasir/print-raw', {
             method: 'POST',
