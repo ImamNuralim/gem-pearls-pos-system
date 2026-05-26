@@ -875,8 +875,8 @@
                     longPressTimer: null,
                     printers: [
     { label: 'Printer 1', id: 75491642 },
-    { label: 'Printer 2', id: 0 }, // isi ID printer 2
-    { label: 'Printer 3', id: 0 }, // isi ID printer 3
+    { label: 'Printer 2', id: 75491812 },
+    { label: 'Printer 3', id: 75491822 },
 ],
                     selectedPrinter: null,
                     showPrinterModal: false,
@@ -1288,7 +1288,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ transaction_id: transactionId, printer_id: printerIp })
+            body: JSON.stringify({ transaction_id: transactionId, printer_id: printerId })
         });
         const data = await res.json();
         if (!data.success) alert('Gagal print: ' + data.message);
