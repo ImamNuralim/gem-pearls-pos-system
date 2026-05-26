@@ -363,4 +363,155 @@ class TransactionController extends Controller
 
         return view('kasir.receipt', compact('transaction'));
     }
+
+    public function receiptData(Transaction $transaction)
+    {
+        $transaction->load(['items', 'salesStaff', 'user', 'member']);
+        return response()->json([
+            'invoice_number' => $transaction->invoice_number,
+            'date' => $transaction->created_at->format('d/m/Y H:i'),
+            'sales' => $transaction->salesStaff->name ?? $transaction->user->name ?? '-',
+            'items' => $transaction->items->map(fn($i) => [
+                'name' => $i->product_name,
+                'qty' => $i->quantity,
+                'price' => number_format($i->final_price, 0, ',', '.'),
+                'subtotal' => number_format($i->subtotal, 0, ',', '.'),
+            ]),
+            'total' => number_format($transaction->total, 0, ',', '.'),
+            'amount_paid' => number_format($transaction->amount_paid, 0, ',', '.'),
+            'change' => number_format($transaction->change_amount, 0, ',', '.'),
+        ]);
+    }
+
+
+    private function padLine($left, $right, $width = 48) {
+    $space = $width - strlen($left) - strlen($right);
+    return $left . str_repeat(' ', max(1, $space)) . $right;
+}
+
+    public function printRaw(Request $request)
+{
+    $transaction = \App\Models\Transaction::with(['items', 'salesStaff', 'user', 'member', 'partner'])
+        ->findOrFail($request->transaction_id);
+
+    $ESC = "\x1B";
+    $GS  = "\x1D";
+    $LF  = "\n";
+    $SEP = str_repeat('-', 48) . $LF;
+    $SEP2 = str_repeat('=', 48) . $LF;
+
+    $data  = $ESC . "@";
+    $data .= $ESC . "a\x01";
+    $data .= $ESC . "E\x01";
+    $data .= "* GEM PEARLS *" . $LF;
+    $data .= $ESC . "E\x00";
+    $data .= "Perhiasan & Oleh-oleh Lombok" . $LF;
+    $data .= "Jl. Raya Meninting, No. 69" . $LF;
+    $data .= "Batu Layar, Lombok Barat, NTB" . $LF;
+    $data .= $SEP2;
+    $data .= $ESC . "a\x00";
+
+    $data .= $this->padLine("Invoice :", $transaction->invoice_number) . $LF;
+    $data .= $this->padLine("Tanggal :", $transaction->created_at->format('d/m/Y H:i')) . $LF;
+    if ($transaction->salesStaff) {
+        $data .= $this->padLine("Sales   :", $transaction->salesStaff->name) . $LF;
+    }
+    $data .= $this->padLine("Customer:", ucfirst(str_replace('_', ' ', $transaction->customer_type))) . $LF;
+    if ($transaction->partner) {
+        $data .= $this->padLine("Mitra   :", $transaction->partner->name) . $LF;
+    }
+    if ($transaction->member) {
+        $data .= $this->padLine("Member  :", $transaction->member->name) . $LF;
+    }
+
+    $data .= $SEP;
+
+    foreach ($transaction->items as $item) {
+    $data .= $ESC . "E\x01"; // bold on
+    $data .= $item->product_name . $LF;
+    $data .= $ESC . "E\x00"; // bold off
+
+    if ($item->final_price != $item->original_price) {
+        $data .= "  Harga asal: Rp " . number_format($item->original_price, 0, ',', '.') . " [DISKON]" . $LF;
+        $qty   = "  " . $item->quantity . "x @ Rp " . number_format($item->final_price, 0, ',', '.');
+        $total = "Rp " . number_format($item->subtotal, 0, ',', '.');
+        $data .= $ESC . "E\x01"; // bold on
+        $data .= $this->padLine($qty, $total) . $LF;
+        $data .= $ESC . "E\x00"; // bold off
+    } else {
+        $qty   = "  " . $item->quantity . "x @ Rp " . number_format($item->final_price, 0, ',', '.');
+        $total = "Rp " . number_format($item->subtotal, 0, ',', '.');
+        $data .= $ESC . "E\x01"; // bold on
+        $data .= $this->padLine($qty, $total) . $LF;
+        $data .= $ESC . "E\x00"; // bold off
+    }
+}
+
+$data .= $SEP;
+$data .= $this->padLine("Subtotal", "Rp " . number_format($transaction->subtotal, 0, ',', '.')) . $LF;
+
+if ($transaction->points_discount > 0) {
+    $data .= $this->padLine("Diskon Poin", "-Rp " . number_format($transaction->points_discount, 0, ',', '.')) . $LF;
+}
+if ($transaction->admin_fee > 0) {
+    $data .= $this->padLine("Admin Fee", "Rp " . number_format($transaction->admin_fee, 0, ',', '.')) . $LF;
+}
+
+$data .= $SEP2;
+$data .= $ESC . "E\x01"; // bold on
+$data .= $this->padLine("TOTAL", "Rp " . number_format($transaction->total, 0, ',', '.')) . $LF;
+$data .= $ESC . "E\x00"; // bold off
+$data .= $this->padLine("Bayar (" . strtoupper($transaction->payment_method) . ")", "Rp " . number_format($transaction->amount_paid, 0, ',', '.')) . $LF;
+
+if ($transaction->change_amount > 0) {
+    $data .= $ESC . "E\x01"; // bold on
+    $data .= $this->padLine("Kembalian", "Rp " . number_format($transaction->change_amount, 0, ',', '.')) . $LF;
+    $data .= $ESC . "E\x00"; // bold off
+}
+
+    $data .= $SEP;
+    $data .= $this->padLine("Subtotal", "Rp " . number_format($transaction->subtotal, 0, ',', '.')) . $LF;
+
+    if ($transaction->points_discount > 0) {
+        $data .= $this->padLine("Diskon Poin", "-Rp " . number_format($transaction->points_discount, 0, ',', '.')) . $LF;
+    }
+    if ($transaction->admin_fee > 0) {
+        $data .= $this->padLine("Admin Fee", "Rp " . number_format($transaction->admin_fee, 0, ',', '.')) . $LF;
+    }
+
+    $data .= $SEP2;
+    $data .= $ESC . "E\x01";
+    $data .= $this->padLine("TOTAL", "Rp " . number_format($transaction->total, 0, ',', '.')) . $LF;
+    $data .= $ESC . "E\x00";
+    $data .= $this->padLine("Bayar (" . strtoupper($transaction->payment_method) . ")", "Rp " . number_format($transaction->amount_paid, 0, ',', '.')) . $LF;
+
+    if ($transaction->change_amount > 0) {
+        $data .= $this->padLine("Kembalian", "Rp " . number_format($transaction->change_amount, 0, ',', '.')) . $LF;
+    }
+
+    $data .= $SEP;
+    $data .= $ESC . "a\x01";
+    $data .= "TERIMA KASIH" . $LF;
+    $data .= "Selamat berbelanja di Gem Pearls" . $LF;
+    $data .= "Simpan struk sebagai bukti pembelian" . $LF;
+    $data .= $SEP;
+    $data .= "081916088775" . $LF;
+    $data .= "Follow @gempearlsjewelry" . $LF;
+    $data .= "Shopee GEM Pearls Lombok" . $LF;
+    $data .= $LF . $LF . $LF;
+    $data .= $GS . "V\x41\x00";
+
+    $printerIp = $request->printer_ip ?? '192.168.1.17';
+    $printerPort = 9100;
+
+    $socket = @fsockopen($printerIp, $printerPort, $errno, $errstr, 5);
+    if (!$socket) {
+        return response()->json(['success' => false, 'message' => "Gagal konek printer: $errstr ($errno)"]);
+    }
+
+    fwrite($socket, $data);
+    fclose($socket);
+
+    return response()->json(['success' => true]);
+}
 }

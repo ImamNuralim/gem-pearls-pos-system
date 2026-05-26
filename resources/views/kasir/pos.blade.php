@@ -186,24 +186,24 @@
     <div x-data="posSystem()" x-init="init()" class="grid grid-cols-12 gap-4" style="min-height: calc(100vh - 80px)">
 
         {{-- Preview Modal --}}
-    <div x-show="previewProduct" x-cloak class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-        @click="previewProduct = null">
-        <div class="relative max-w-sm w-full" @click.stop>
-            <button @click="previewProduct = null"
-                class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-slate-600 flex items-center justify-center shadow-lg z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                    stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-            </button>
-            <img :src="previewProduct?.photo" class="w-full rounded-2xl object-cover shadow-2xl">
-            <div class="bg-white rounded-xl p-3 mt-2 shadow-lg">
-                <p class="font-bold text-slate-800 text-sm" x-text="previewProduct?.name"></p>
-                <p class="text-xs text-slate-400" x-text="previewProduct?.sku"></p>
-                <p class="text-blue-600 font-bold mt-1" x-text="previewProduct?.price_formatted"></p>
+        <div x-show="previewProduct" x-cloak class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+            @click="previewProduct = null">
+            <div class="relative max-w-sm w-full" @click.stop>
+                <button @click="previewProduct = null"
+                    class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-slate-600 flex items-center justify-center shadow-lg z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <img :src="previewProduct?.photo" class="w-full rounded-2xl object-cover shadow-2xl">
+                <div class="bg-white rounded-xl p-3 mt-2 shadow-lg">
+                    <p class="font-bold text-slate-800 text-sm" x-text="previewProduct?.name"></p>
+                    <p class="text-xs text-slate-400" x-text="previewProduct?.sku"></p>
+                    <p class="text-blue-600 font-bold mt-1" x-text="previewProduct?.price_formatted"></p>
+                </div>
             </div>
         </div>
-    </div>
         {{-- KIRI: Produk --}}
         <div class="col-span-7 flex flex-col gap-3">
 
@@ -442,7 +442,8 @@
                                             x-text="formatRupiah(item.original_price)"></span>
                                     </template>
                                     <input type="text" :value="formatNumber(item.final_price)"
-                                        @input="updateCartPrice(index, $event)" class="input-pos font-bold text-blue-600" style="width:110px; padding: 5px 8px; font-size:12px;">
+                                        @input="updateCartPrice(index, $event)" class="input-pos font-bold text-blue-600"
+                                        style="width:110px; padding: 5px 8px; font-size:12px;">
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <button @click="decrementQty(index)"
@@ -597,13 +598,9 @@
                 {{-- Jumlah Bayar --}}
                 <div class="mb-3">
                     <p class="section-label mb-1.5">Jumlah Bayar (<span x-text="currencyCode"></span>)</p>
-                    <input type="text"
-                        :value="formatNumber(amountPaid)"
-                        @input="updateAmountPaid($event)"
-                        @focus="$event.target.select()"
-                        :placeholder="'Masukkan jumlah dalam ' + currencyCode"
-                        class="input-pos font-bold"
-                        style="font-size:13px;">
+                    <input type="text" :value="formatNumber(amountPaid)" @input="updateAmountPaid($event)"
+                        @focus="$event.target.select()" :placeholder="'Masukkan jumlah dalam ' + currencyCode"
+                        class="input-pos font-bold" style="font-size:13px;">
                     <div x-show="amountPaid > 0"
                         class="mt-2 p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 space-y-1">
                         <div class="summary-row">
@@ -684,24 +681,37 @@
                     <p x-show="lastTransaction?.points_earned > 0" class="text-xs text-blue-500 mb-3">
                         ⭐ +<span x-text="lastTransaction?.points_earned"></span> poin ditambahkan ke member
                     </p>
-                    <div class="flex gap-2 mt-4">
-                        <a :href="'/kasir/receipt/' + lastTransaction?.id" target="_blank"
-                            class="flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl bg-blue-50 text-blue-600 text-sm font-semibold hover:bg-blue-100 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375H8.25m0 0L12 3.75m-3.75 4.5L12 12m-3.75-3.75H4.875A2.625 2.625 0 0 0 2.25 10.875v6.375A2.625 2.625 0 0 0 4.875 19.875h14.25A2.625 2.625 0 0 0 21.75 17.25v-3" />
-                            </svg>
-                            <span>Lihat Struk</span>
-                        </a>
+                    <div class="flex flex-col gap-2 mt-4">
+                        {{-- Row 1: Print + Lihat Struk --}}
+                        <div class="flex gap-2">
+                            <button @click="pendingPrintId = lastTransaction?.id; showPrinterModal = true"
+                                class="flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                                </svg>
+                                Print
+                            </button>
+                            <a :href="'/kasir/receipt/' + lastTransaction?.id" target="_blank"
+                                class="flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl bg-blue-50 text-blue-600 text-sm font-semibold hover:bg-blue-100 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375H8.25m0 0L12 3.75m-3.75 4.5L12 12m-3.75-3.75H4.875A2.625 2.625 0 0 0 2.25 10.875v6.375A2.625 2.625 0 0 0 4.875 19.875h14.25A2.625 2.625 0 0 0 21.75 17.25v-3" />
+                                </svg>
+                                Lihat Struk
+                            </a>
+                        </div>
+                        {{-- Row 2: Transaksi Baru --}}
                         <button @click="resetPOS()"
-                            class="flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition">
+                            class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                             </svg>
-                            <span>Transaksi Baru</span>
+                            Transaksi Baru
                         </button>
                     </div>
                 </div>
@@ -722,6 +732,49 @@
                     </div>
                 </div>
             </div>
+            {{-- Modal Pilih Printer --}}
+            <div x-show="showPrinterModal" x-cloak
+                class="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl w-full max-w-xs p-6">
+                    <h2 class="text-base font-bold text-slate-800 mb-4">Pilih Printer</h2>
+                    <div class="space-y-2 mb-5">
+                        <template x-for="printer in printers" :key="printer.ip">
+                            <label class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition"
+                                :class="selectedPrinter === printer.ip ? 'border-blue-400 bg-blue-50' :
+                                    'border-slate-200 hover:border-blue-200'">
+                                <input type="radio" :value="printer.ip" x-model="selectedPrinter" class="hidden">
+                                <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                                    :class="selectedPrinter === printer.ip ? 'bg-blue-100' : 'bg-slate-100'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4"
+                                        :class="selectedPrinter === printer.ip ? 'text-blue-600' : 'text-slate-500'">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-700" x-text="printer.label"></p>
+                                    <p class="text-xs text-slate-400" x-text="printer.ip"></p>
+                                </div>
+                            </label>
+                        </template>
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="showPrinterModal = false; selectedPrinter = null"
+                            class="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-500 font-semibold hover:bg-slate-50 transition">
+                            Batal
+                        </button>
+                        <button @click="showPrinterModal = false; printReceipt(pendingPrintId, selectedPrinter)"
+                            :disabled="!selectedPrinter"
+                            :class="selectedPrinter ? 'bg-blue-600 hover:bg-blue-700 text-white' :
+                                'bg-slate-100 text-slate-300 cursor-not-allowed'"
+                            class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition">
+                            Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+
 
             {{-- Modal Member Success --}}
             <div x-show="showMemberSuccess" x-cloak
@@ -735,6 +788,8 @@
             </div>
 
         </div>
+
+
 
         <script>
             function posSystem() {
@@ -819,6 +874,14 @@
                     selectedSalesId: '',
                     previewProduct: null,
                     longPressTimer: null,
+                    printers: [
+                        { label: 'Printer 1', ip: '192.168.1.26' },
+                        { label: 'Printer 2', ip: '192.168.1.16' },
+                        { label: 'Printer 3', ip: '192.168.1.17' },
+                    ],
+                    selectedPrinter: null,
+                    showPrinterModal: false,
+                    pendingPrintId: null,
 
                     init() {
                         this.filteredProducts = this.allProducts;
@@ -1216,6 +1279,24 @@
                                 this.filteredProducts = products;
                             });
                     },
+                    async printReceipt(transactionId, printerIp) {
+    if (!printerIp) { alert('Pilih printer dulu!'); return; }
+    try {
+        const res = await fetch('/kasir/print-raw', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ transaction_id: transactionId, printer_ip: printerIp })
+        });
+        const data = await res.json();
+        if (!data.success) alert('Gagal print: ' + data.message);
+    } catch(e) {
+        alert('Gagal print: ' + e.message);
+    }
+},
                 }
             }
         </script>

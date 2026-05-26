@@ -24,8 +24,8 @@ Route::get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
         if ($user->hasRole('owner') || $user->hasRole('admin')) return redirect()->route('dashboard.admin');
-        if ($user->hasRole('kasir'))    return redirect()->route('dashboard.kasir');
-        if ($user->hasRole('security')) return redirect()->route('dashboard.security');
+        if ($user->hasRole('kasir'))    return redirect()->route('kasir.pos');
+        if ($user->hasRole('security')) return redirect()->route('security.index');
     }
     return redirect()->route('login');
 });
@@ -59,8 +59,13 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Dashboards ───────────────────────────
     Route::get('/dashboard/admin',    [DashboardController::class, 'admin'])->name('dashboard.admin')->middleware('role:owner,admin');
-    Route::get('/dashboard/kasir',    [TransactionController::class, 'index'])->name('dashboard.kasir')->middleware('role:kasir,owner,admin');
-    Route::get('/dashboard/security', [DashboardController::class, 'security'])->name('dashboard.security')->middleware('role:security,owner,admin');
+    Route::get('/dashboard/kasir', function () {
+    return redirect()->route('kasir.pos');
+    })->name('dashboard.kasir')->middleware('role:kasir,owner,admin');
+
+    Route::get('/dashboard/security', function () {
+        return redirect()->route('security.index');
+    })->name('dashboard.security')->middleware('role:security,owner,admin');
 
     // ── Admin ────────────────────────────────
     Route::prefix('admin')->name('admin.')->middleware('role:owner,admin')->group(function () {
@@ -142,17 +147,20 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Kasir ────────────────────────────────
     Route::prefix('kasir')->name('kasir.')->middleware('role:kasir,owner,admin')->group(function () {
-        Route::get('/',                      [TransactionController::class, 'index'])->name('pos');
-        Route::get('/search-product',        [TransactionController::class, 'searchProduct'])->name('search.product');
-        Route::get('/search-partner',        [TransactionController::class, 'searchPartner'])->name('search.partner');
-        Route::get('/search-member',         [TransactionController::class, 'searchMember'])->name('search.member');
-        Route::post('/checkout',             [TransactionController::class, 'checkout'])->name('checkout');
-        Route::get('/receipt/{transaction}', [TransactionController::class, 'receipt'])->name('receipt');
-        Route::post('/create-member',        [TransactionController::class, 'storeMember']);
-    });
+    Route::get('/',                           [TransactionController::class, 'index'])->name('pos');
+    Route::get('/search-product',             [TransactionController::class, 'searchProduct'])->name('search.product');
+    Route::get('/search-partner',             [TransactionController::class, 'searchPartner'])->name('search.partner');
+    Route::get('/search-member',              [TransactionController::class, 'searchMember'])->name('search.member');
+    Route::post('/checkout',                  [TransactionController::class, 'checkout'])->name('checkout');
+    Route::get('/receipt/{transaction}',      [TransactionController::class, 'receipt'])->name('receipt');
+    Route::post('/create-member',             [TransactionController::class, 'storeMember']);
+    Route::get('/receipt-data/{transaction}', [TransactionController::class, 'receiptData'])->name('receipt-data');
+    Route::post('/print-raw',                 [TransactionController::class, 'printRaw'])->name('print-raw');
+});
 
     // ── Security ─────────────────────────────
     Route::prefix('security')->middleware('role:security,owner,admin')->group(function () {
+        Route::get('/', [DashboardController::class, 'security'])->name('security.index');
         Route::post('visits/store',          [DashboardController::class, 'storeVisit'])->name('security.visits.store');
         Route::post('partner/store',         [DashboardController::class, 'storePartner'])->name('security.partner.store');
         Route::post('guides/store',          [DashboardController::class, 'storeGuide'])->name('security.guides.store');
