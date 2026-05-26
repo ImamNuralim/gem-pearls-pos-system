@@ -397,7 +397,7 @@ class TransactionController extends Controller
     $ESC = "\x1B";
     $GS  = "\x1D";
     $LF  = "\n";
-    $SEP = str_repeat('-', 48) . $LF;
+    $SEP  = str_repeat('-', 48) . $LF;
     $SEP2 = str_repeat('=', 48) . $LF;
 
     $data  = $ESC . "@";
@@ -427,47 +427,25 @@ class TransactionController extends Controller
     $data .= $SEP;
 
     foreach ($transaction->items as $item) {
-    $data .= $ESC . "E\x01"; // bold on
-    $data .= $item->product_name . $LF;
-    $data .= $ESC . "E\x00"; // bold off
+        $data .= $ESC . "E\x01";
+        $data .= $item->product_name . $LF;
+        $data .= $ESC . "E\x00";
 
-    if ($item->final_price != $item->original_price) {
-        $data .= "  Harga asal: Rp " . number_format($item->original_price, 0, ',', '.') . " [DISKON]" . $LF;
-        $qty   = "  " . $item->quantity . "x @ Rp " . number_format($item->final_price, 0, ',', '.');
-        $total = "Rp " . number_format($item->subtotal, 0, ',', '.');
-        $data .= $ESC . "E\x01"; // bold on
-        $data .= $this->padLine($qty, $total) . $LF;
-        $data .= $ESC . "E\x00"; // bold off
-    } else {
-        $qty   = "  " . $item->quantity . "x @ Rp " . number_format($item->final_price, 0, ',', '.');
-        $total = "Rp " . number_format($item->subtotal, 0, ',', '.');
-        $data .= $ESC . "E\x01"; // bold on
-        $data .= $this->padLine($qty, $total) . $LF;
-        $data .= $ESC . "E\x00"; // bold off
+        if ($item->final_price != $item->original_price) {
+            $data .= "  Harga asal: Rp " . number_format($item->original_price, 0, ',', '.') . " [DISKON]" . $LF;
+            $qty   = "  " . $item->quantity . "x @ Rp " . number_format($item->final_price, 0, ',', '.');
+            $total = "Rp " . number_format($item->subtotal, 0, ',', '.');
+            $data .= $ESC . "E\x01";
+            $data .= $this->padLine($qty, $total) . $LF;
+            $data .= $ESC . "E\x00";
+        } else {
+            $qty   = "  " . $item->quantity . "x @ Rp " . number_format($item->final_price, 0, ',', '.');
+            $total = "Rp " . number_format($item->subtotal, 0, ',', '.');
+            $data .= $ESC . "E\x01";
+            $data .= $this->padLine($qty, $total) . $LF;
+            $data .= $ESC . "E\x00";
+        }
     }
-}
-
-$data .= $SEP;
-$data .= $this->padLine("Subtotal", "Rp " . number_format($transaction->subtotal, 0, ',', '.')) . $LF;
-
-if ($transaction->points_discount > 0) {
-    $data .= $this->padLine("Diskon Poin", "-Rp " . number_format($transaction->points_discount, 0, ',', '.')) . $LF;
-}
-if ($transaction->admin_fee > 0) {
-    $data .= $this->padLine("Admin Fee", "Rp " . number_format($transaction->admin_fee, 0, ',', '.')) . $LF;
-}
-
-$data .= $SEP2;
-$data .= $ESC . "E\x01"; // bold on
-$data .= $this->padLine("TOTAL", "Rp " . number_format($transaction->total, 0, ',', '.')) . $LF;
-$data .= $ESC . "E\x00"; // bold off
-$data .= $this->padLine("Bayar (" . strtoupper($transaction->payment_method) . ")", "Rp " . number_format($transaction->amount_paid, 0, ',', '.')) . $LF;
-
-if ($transaction->change_amount > 0) {
-    $data .= $ESC . "E\x01"; // bold on
-    $data .= $this->padLine("Kembalian", "Rp " . number_format($transaction->change_amount, 0, ',', '.')) . $LF;
-    $data .= $ESC . "E\x00"; // bold off
-}
 
     $data .= $SEP;
     $data .= $this->padLine("Subtotal", "Rp " . number_format($transaction->subtotal, 0, ',', '.')) . $LF;
@@ -486,7 +464,9 @@ if ($transaction->change_amount > 0) {
     $data .= $this->padLine("Bayar (" . strtoupper($transaction->payment_method) . ")", "Rp " . number_format($transaction->amount_paid, 0, ',', '.')) . $LF;
 
     if ($transaction->change_amount > 0) {
+        $data .= $ESC . "E\x01";
         $data .= $this->padLine("Kembalian", "Rp " . number_format($transaction->change_amount, 0, ',', '.')) . $LF;
+        $data .= $ESC . "E\x00";
     }
 
     $data .= $SEP;
@@ -501,17 +481,35 @@ if ($transaction->change_amount > 0) {
     $data .= $LF . $LF . $LF;
     $data .= $GS . "V\x41\x00";
 
-    $printerIp = $request->printer_ip ?? '192.168.1.17';
-    $printerPort = 9100;
+    // PrintNode API
+    $printerId = $request->printer_id ?? 75491642; // ID printer dari PrintNode
+    $apiKey    = 'lqj-qSGpSjmccSPCRYKlsyHY9oHvBvuhrBpgX_Qulyo';
 
-    $socket = @fsockopen($printerIp, $printerPort, $errno, $errstr, 5);
-    if (!$socket) {
-        return response()->json(['success' => false, 'message' => "Gagal konek printer: $errstr ($errno)"]);
+    $payload = [
+        'printerId' => (int) $printerId,
+        'title'     => 'Struk ' . $transaction->invoice_number,
+        'contentType' => 'raw_base64',
+        'content'   => base64_encode($data),
+        'source'    => 'Gem Pearls POS',
+    ];
+
+    $ch = curl_init('https://api.printnode.com/printjobs');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Basic ' . base64_encode($apiKey . ':'),
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode === 201) {
+        return response()->json(['success' => true]);
     }
 
-    fwrite($socket, $data);
-    fclose($socket);
-
-    return response()->json(['success' => true]);
+    return response()->json(['success' => false, 'message' => 'PrintNode error: ' . $response]);
 }
 }

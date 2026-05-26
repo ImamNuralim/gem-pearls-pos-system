@@ -738,11 +738,11 @@
                 <div class="bg-white rounded-2xl w-full max-w-xs p-6">
                     <h2 class="text-base font-bold text-slate-800 mb-4">Pilih Printer</h2>
                     <div class="space-y-2 mb-5">
-                        <template x-for="printer in printers" :key="printer.ip">
+                        <template x-for="printer in printers" :key="printer.id">
                             <label class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition"
                                 :class="selectedPrinter === printer.ip ? 'border-blue-400 bg-blue-50' :
                                     'border-slate-200 hover:border-blue-200'">
-                                <input type="radio" :value="printer.ip" x-model="selectedPrinter" class="hidden">
+                                <input type="radio" :value="printer.id" x-model="selectedPrinter" class="hidden">
                                 <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                                     :class="selectedPrinter === printer.ip ? 'bg-blue-100' : 'bg-slate-100'">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -754,7 +754,6 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-semibold text-slate-700" x-text="printer.label"></p>
-                                    <p class="text-xs text-slate-400" x-text="printer.ip"></p>
                                 </div>
                             </label>
                         </template>
@@ -875,10 +874,10 @@
                     previewProduct: null,
                     longPressTimer: null,
                     printers: [
-                        { label: 'Printer 1', ip: '192.168.1.26' },
-                        { label: 'Printer 2', ip: '192.168.1.16' },
-                        { label: 'Printer 3', ip: '192.168.1.17' },
-                    ],
+    { label: 'Printer 1', id: 75491642 },
+    { label: 'Printer 2', id: 0 }, // isi ID printer 2
+    { label: 'Printer 3', id: 0 }, // isi ID printer 3
+],
                     selectedPrinter: null,
                     showPrinterModal: false,
                     pendingPrintId: null,
@@ -1289,7 +1288,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ transaction_id: transactionId, printer_ip: printerIp })
+            body: JSON.stringify({ transaction_id: transactionId, printer_id: printerIp })
         });
         const data = await res.json();
         if (!data.success) alert('Gagal print: ' + data.message);
