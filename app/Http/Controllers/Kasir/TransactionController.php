@@ -483,7 +483,7 @@ class TransactionController extends Controller
 
     // PrintNode API
     $printerId = $request->printer_id ?? 75491642; // ID printer dari PrintNode
-    $apiKey    = 'lqj-qSGpSjmccSPCRYKlsyHY9oHvBvuhrBpgX_Qulyo';
+    $apiKey    = '1LDE1cfv3WPQKYZWbINwXdR_tCrSmhfrwAlbbSxl6wY';
 
     $payload = [
         'printerId' => (int) $printerId,
