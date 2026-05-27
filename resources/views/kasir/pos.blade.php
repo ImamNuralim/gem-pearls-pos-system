@@ -875,7 +875,7 @@
                     longPressTimer: null,
                     printers: [
     { label: 'Printer 1', id: 75496179 },
-    { label: 'Printer 2', id: 75496152 },
+    { label: 'Printer 2', id: 75492683 },
     { label: 'Printer 3', id: 75492748 },
 ],
                     selectedPrinter: null,
