@@ -165,7 +165,7 @@
                                     {{ $commission->commission_date?->format('d/m/y') }}
                                 </td>
                                 <td class="px-5 py-3.5">
-                                    <div class="font-semibold text-slate-800 text-sm">{{ $commission->partner->name }}
+                                    <div class="font-semibold text-slate-800 text-sm">{{ $commission->partner->name ?? '-' }}
                                     </div>
                                     @if ($commission->visit)
                                         <div class="text-xs text-blue-500 font-medium">
@@ -234,7 +234,7 @@
                                         </button>
                                         {{-- Print --}}
                                         <button
-                                            onclick="downloadAsJpg('{{ route('admin.commissions.view', $commission) }}', 'komisi-{{ $commission->partner->name }}-{{ $commission->commission_date->format('d-m-Y') }}')"
+                                            onclick="downloadAsJpg('{{ route('admin.commissions.view', $commission) }}', 'komisi-{{ $commission->partner->name ?? '-' }}-{{ $commission->commission_date->format('d-m-Y') }}')"
                                             class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
                                             title="Download JPG">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
