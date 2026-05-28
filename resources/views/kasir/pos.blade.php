@@ -874,9 +874,9 @@
                     previewProduct: null,
                     longPressTimer: null,
                     printers: [
-    { label: 'Printer 1', id: 75496179 },
-    { label: 'Printer 2', id: 75496435 },
-    { label: 'Printer 3', id: 75496458 },
+    { label: 'Printer 1', id: 75499142 },
+    { label: 'Printer 2', id: 75499140 },
+    { label: 'Printer 3', id: 75499138 },
 ],
                     selectedPrinter: null,
                     showPrinterModal: false,
