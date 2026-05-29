@@ -59,7 +59,7 @@
         }
 
         .section-title {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: 700;
             color: #334155;
         }
@@ -198,24 +198,31 @@
         <div class="card p-6">
             <div class="flex items-center gap-2 mb-5">
                 <div class="w-1 h-5 rounded-full bg-blue-500"></div>
-                <span class="text-sm font-bold text-slate-700">Form Kunjungan</span>
+                <span class="text-[15px] font-bold text-slate-700">Form Kunjungan</span>
             </div>
 
             <form action="{{ route('security.visits.store') }}" method="POST">
                 @csrf
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    {{-- Tanggal --}}
-                    <div>
-                        <label class="label">Tanggal Kunjungan</label>
-                        <input type="date" name="visit_date" value="{{ date('Y-m-d') }}" class="input-field">
-                    </div>
-                    {{-- Sticker --}}
-                    <div>
-                        <label class="label">No Sticker</label>
-                        <input type="text" name="sticker_number" placeholder="Contoh: STK-001" class="input-field">
-                    </div>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    {{-- Tanggal --}}
+    <div>
+        <label class="label">Tanggal Kunjungan</label>
+        <input type="date"
+            name="visit_date"
+            value="{{ date('Y-m-d') }}"
+            class="input-field">
+    </div>
+
+    {{-- Sticker --}}
+    <div>
+        <label class="label">No Sticker</label>
+        <input type="text"
+            name="sticker_number"
+            placeholder="Contoh: STK-001"
+            class="input-field">
+    </div>
+</div>
 
 
                 {{-- 3. Guide --}}
@@ -226,9 +233,9 @@
                             <span class="section-title">Guide</span>
                         </div>
                         <button type="button" onclick="document.getElementById('guide-modal').classList.remove('hidden')"
-                            class="btn-green">+ Guide Baru</button>
+                            class="btn-green">+ Daftar Guide</button>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <div>
                             <label class="label">Nama Guide</label>
                             <div class="relative">
@@ -243,7 +250,6 @@
                                                 <span x-text="guide.guide_code"></span> —
                                                 <span x-text="guide.name"></span>
                                             </div>
-                                            <div class="text-xs text-gray-400" x-text="guide.phone ?? '-'"></div>
                                         </div>
                                     </template>
                                 </div>
@@ -280,9 +286,9 @@
                             <span class="section-title">Sopir / Driver</span>
                         </div>
                         <button type="button" onclick="document.getElementById('driver-modal').classList.remove('hidden')"
-                            class="btn-green">+ Driver Baru</button>
+                            class="btn-green">+ Daftar Driver</button>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <div>
                             <label class="label">Nama Sopir</label>
                             <div class="relative">
@@ -328,63 +334,120 @@
 
                 {{-- 5 & 6. Kendaraan & Plat --}}
                 <div class="mb-5" x-data="{ vehicles: [{ plate: '', type: '' }] }">
-                    <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-between gap-3 mb-3">
                         <div class="flex items-center gap-2">
                             <div class="w-1 h-4 rounded-full bg-amber-500"></div>
                             <span class="section-title">Kendaraan & Plat</span>
                         </div>
-                        <button type="button" @click="vehicles.push({ plate: '', type: '' })" class="btn-green">
-                            + Tambah Kendaraan
+
+                        <button type="button" @click="vehicles.push({ plate: '', type: '' })"
+                            class="hidden md:inline-flex btn-green">
+                            + Tambah
                         </button>
                     </div>
-                    <div class="space-y-2">
+
+                    <div class="space-y-3">
                         <template x-for="(vehicle, index) in vehicles" :key="index">
-                            <div class="grid grid-cols-12 gap-3">
-                                <div class="col-span-5">
-                                    <input type="text" :name="'vehicle_types[' + index + ']'" x-model="vehicle.type"
-                                        placeholder="Jenis (Bus, Hiace, dll)" class="input-field">
-                                </div>
-                                <div class="col-span-5">
-                                    <input type="text" :name="'plate_numbers[' + index + ']'" x-model="vehicle.plate"
-                                        placeholder="Plat Nomor" class="input-field">
-                                </div>
-                                <div class="col-span-2">
+                            <div
+                                class="rounded-2xl border border-gray-200 bg-gray-50/60 p-3 md:p-0 md:border-0 md:bg-transparent">
+                                <div class="flex items-center justify-between mb-3 md:hidden">
+                                    <span class="text-xs font-bold text-gray-500">
+                                        Kendaraan <span x-text="index + 1"></span>
+                                    </span>
+
                                     <button type="button" @click="vehicles.splice(index, 1)"
-                                        class="w-full px-3 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-500 text-sm font-semibold transition">
+                                        class="text-xs font-semibold text-red-500">
                                         Hapus
                                     </button>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                                    <div class="md:col-span-5">
+                                        <input type="text" :name="'vehicle_types[' + index + ']'"
+                                            x-model="vehicle.type" placeholder="Jenis kendaraan" class="input-field">
+                                    </div>
+
+                                    <div class="md:col-span-5">
+                                        <input type="text" :name="'plate_numbers[' + index + ']'"
+                                            x-model="vehicle.plate" placeholder="Plat nomor" class="input-field">
+                                    </div>
+
+                                    <div class="hidden md:block md:col-span-2">
+                                        <button type="button" @click="vehicles.splice(index, 1)"
+                                            class="w-full px-3 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-500 text-sm font-semibold transition">
+                                            Hapus
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </template>
                     </div>
+
+                    <button type="button" @click="vehicles.push({ plate: '', type: '' })"
+                        class="mt-3 w-full md:hidden btn-green justify-center">
+                        + Tambah Kendaraan
+                    </button>
                 </div>
 
                 <div class="mb-5">
-                    <label class="label">Tipe Kunjungan</label>
-                    <div class="grid grid-cols-3 gap-3">
-                        <label class="type-btn" :class="visitType === 'travel_agent' ? 'active' : ''">
-                            <input type="radio" name="visit_type_label" value="travel_agent" x-model="visitType"
-                                class="hidden">
-                            <span class="text-sm font-bold text-slate-700">Travel Agent</span>
-                            <span class="text-xs text-slate-400 mt-0.5">Pilih dari daftar</span>
-                        </label>
-                        <label class="type-btn" :class="visitType === 'freelance' ? 'active' : ''">
-                            <input type="radio" name="visit_type_label" value="freelance" x-model="visitType"
-                                class="hidden">
-                            <span class="text-sm font-bold text-slate-700">Freelance</span>
-                            <span class="text-xs text-slate-400 mt-0.5">Guide lepas</span>
-                        </label>
-                        <label class="type-btn" :class="visitType === 'no_guide' ? 'active' : ''">
-                            <input type="radio" name="visit_type_label" value="no_guide" x-model="visitType"
-                                class="hidden">
-                            <span class="text-sm font-bold text-slate-700">No Guide</span>
-                            <span class="text-xs text-slate-400 mt-0.5">Tamu langsung</span>
-                        </label>
-                    </div>
-                </div>
+    <label class="label">Tipe Kunjungan</label>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <label class="type-btn"
+            :class="visitType === 'travel_agent' ? 'active' : ''">
+            <input type="radio"
+                name="visit_type_label"
+                value="travel_agent"
+                x-model="visitType"
+                class="hidden">
+
+            <span class="text-sm font-bold text-slate-700">
+                Travel Agent
+            </span>
+
+            <span class="text-xs text-slate-400 mt-0.5">
+                Pilih dari daftar
+            </span>
+        </label>
+
+        <label class="type-btn"
+            :class="visitType === 'freelance' ? 'active' : ''">
+            <input type="radio"
+                name="visit_type_label"
+                value="freelance"
+                x-model="visitType"
+                class="hidden">
+
+            <span class="text-sm font-bold text-slate-700">
+                Freelance
+            </span>
+
+            <span class="text-xs text-slate-400 mt-0.5">
+                Guide lepas
+            </span>
+        </label>
+
+        <label class="type-btn"
+            :class="visitType === 'no_guide' ? 'active' : ''">
+            <input type="radio"
+                name="visit_type_label"
+                value="no_guide"
+                x-model="visitType"
+                class="hidden">
+
+            <span class="text-sm font-bold text-slate-700">
+                No Guide
+            </span>
+
+            <span class="text-xs text-slate-400 mt-0.5">
+                Tamu langsung
+            </span>
+        </label>
+    </div>
+</div>
 
                 <div x-show="visitType === 'travel_agent'" class="mb-4">
-                    <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between mb-2 gap-3">
                         <label class="label" style="margin-bottom:0">Nama Travel Agent</label>
                         <button type="button"
                             onclick="document.getElementById('partner-modal').classList.remove('hidden')"
@@ -644,10 +707,15 @@
                                                     class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
                                             </div>
                                             @php
-                                                $editVehicles = $visit->vehicles->map(fn($v) => [
-                                                    'plate' => $v->plate_number,
-                                                    'type' => $v->vehicle_type,
-                                                ])->values()->toJson();
+                                                $editVehicles = $visit->vehicles
+                                                    ->map(
+                                                        fn($v) => [
+                                                            'plate' => $v->plate_number,
+                                                            'type' => $v->vehicle_type,
+                                                        ],
+                                                    )
+                                                    ->values()
+                                                    ->toJson();
 
                                                 if ($editVehicles === '[]') {
                                                     $editVehicles = "[{plate:'',type:''}]";
@@ -657,7 +725,9 @@
                                             <div>
                                                 <div class="flex items-center justify-between mb-2">
                                                     <label class="label" style="margin-bottom:0">Kendaraan</label>
-                                                    <button type="button" onclick="addEditVehicleRow({{ $visit->id }})" class="text-xs text-blue-500 font-semibold">
+                                                    <button type="button"
+                                                        onclick="addEditVehicleRow({{ $visit->id }})"
+                                                        class="text-xs text-blue-500 font-semibold">
                                                         + Tambah
                                                     </button>
                                                 </div>
@@ -666,17 +736,20 @@
                                                     @forelse($visit->vehicles as $vehicle)
                                                         <div class="grid grid-cols-12 gap-2 vehicle-row">
                                                             <div class="col-span-5">
-                                                                <input type="text" name="vehicle_types[]" value="{{ $vehicle->vehicle_type }}"
+                                                                <input type="text" name="vehicle_types[]"
+                                                                    value="{{ $vehicle->vehicle_type }}"
                                                                     placeholder="Jenis"
                                                                     class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
                                                             </div>
                                                             <div class="col-span-5">
-                                                                <input type="text" name="plate_numbers[]" value="{{ $vehicle->plate_number }}"
+                                                                <input type="text" name="plate_numbers[]"
+                                                                    value="{{ $vehicle->plate_number }}"
                                                                     placeholder="Plat"
                                                                     class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
                                                             </div>
                                                             <div class="col-span-2">
-                                                                <button type="button" onclick="this.closest('.vehicle-row').remove()"
+                                                                <button type="button"
+                                                                    onclick="this.closest('.vehicle-row').remove()"
                                                                     class="w-full py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-500 text-xs font-semibold">
                                                                     Hapus
                                                                 </button>
@@ -685,15 +758,18 @@
                                                     @empty
                                                         <div class="grid grid-cols-12 gap-2 vehicle-row">
                                                             <div class="col-span-5">
-                                                                <input type="text" name="vehicle_types[]" placeholder="Jenis"
+                                                                <input type="text" name="vehicle_types[]"
+                                                                    placeholder="Jenis"
                                                                     class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
                                                             </div>
                                                             <div class="col-span-5">
-                                                                <input type="text" name="plate_numbers[]" placeholder="Plat"
+                                                                <input type="text" name="plate_numbers[]"
+                                                                    placeholder="Plat"
                                                                     class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
                                                             </div>
                                                             <div class="col-span-2">
-                                                                <button type="button" onclick="this.closest('.vehicle-row').remove()"
+                                                                <button type="button"
+                                                                    onclick="this.closest('.vehicle-row').remove()"
                                                                     class="w-full py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-500 text-xs font-semibold">
                                                                     Hapus
                                                                 </button>
@@ -1154,9 +1230,9 @@
                     const tr = document.createElement('tr');
                     tr.className = 'border-t border-gray-100 hover:bg-blue-50/40 transition';
 
-                    const typeBadge = data.partner.type === 'travel_agent'
-                        ? '<span class="badge-blue">Travel Agent</span>'
-                        : '<span class="badge-yellow">Freelance</span>';
+                    const typeBadge = data.partner.type === 'travel_agent' ?
+                        '<span class="badge-blue">Travel Agent</span>' :
+                        '<span class="badge-yellow">Freelance</span>';
 
                     tr.innerHTML = `
                         <td class="px-4 py-3 font-bold text-blue-600 text-xs">${data.partner.code}</td>
@@ -1173,11 +1249,11 @@
         }
 
         function addEditVehicleRow(visitId) {
-    const wrapper = document.getElementById(`edit-vehicles-${visitId}`);
+            const wrapper = document.getElementById(`edit-vehicles-${visitId}`);
 
-    const row = document.createElement('div');
-    row.className = 'grid grid-cols-12 gap-2 vehicle-row';
-    row.innerHTML = `
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-12 gap-2 vehicle-row';
+            row.innerHTML = `
         <div class="col-span-5">
             <input type="text" name="vehicle_types[]" placeholder="Jenis"
                 class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none text-sm bg-slate-50">
@@ -1194,8 +1270,8 @@
         </div>
     `;
 
-    wrapper.appendChild(row);
-}
+            wrapper.appendChild(row);
+        }
     </script>
 
 @endsection
