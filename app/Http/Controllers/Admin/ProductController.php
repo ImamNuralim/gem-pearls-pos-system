@@ -126,12 +126,12 @@ class ProductController extends Controller
         $categoryDb      = self::CATEGORY_MAP[$categoryCode];
 
         // Generate SKU: [KAT]-[SUBKAT]-[TIER]-[NOMOR URUT]
-        $lastProduct = Product::where('sku', 'like', "{$categoryCode}-{$subcategoryCode}-{$tier}-%")
-            ->orderBy('id', 'desc')->first();
-        $number = $lastProduct
-            ? (intval(substr($lastProduct->sku, -4)) + 1)
-            : 1;
-        $sku = "{$categoryCode}-{$subcategoryCode}-{$tier}-" . str_pad($number, 4, '0', STR_PAD_LEFT);
+$number = 1;
+do {
+    $sku = "{$categoryCode}-{$subcategoryCode}-{$tier}-" . str_pad($number, 4, '0', STR_PAD_LEFT);
+    $exists = Product::withTrashed()->where('sku', $sku)->exists();
+    $number++;
+} while ($exists);
 
         $product = Product::create([
             'name'                => $request->name,
