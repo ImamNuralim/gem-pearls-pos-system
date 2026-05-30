@@ -34,10 +34,13 @@ Route::get('/', function () {
 });
 
 Route::get('/temp-reset-password', function() {
-    \App\Models\UploadUser::query()->update([
-        'password' => \Illuminate\Support\Facades\Hash::make('gempearlsupload2026')
-    ]);
-    return 'Done';
+    $user = \App\Models\UploadUser::where('email', 'sri@gem.com')->first();
+    $check = $user->checkPassword('gempearlsupload2026');
+    return [
+        'user' => $user->email,
+        'password_hash' => $user->password,
+        'check' => $check
+    ];
 });
 // ── Auth ─────────────────────────────────────
 require __DIR__ . '/auth.php';
