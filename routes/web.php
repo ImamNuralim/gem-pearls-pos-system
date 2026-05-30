@@ -36,11 +36,11 @@ Route::get('/', function () {
 Route::get('/temp-reset-password', function() {
     $user = \App\Models\UploadUser::where('email', 'sri@gem.com')->first();
     $check = $user->checkPassword('gempearlsupload2026');
-    return [
+    return response()->json([
         'user' => $user->email,
         'password_hash' => $user->password,
         'check' => $check
-    ];
+    ]);
 });
 // ── Auth ─────────────────────────────────────
 require __DIR__ . '/auth.php';
