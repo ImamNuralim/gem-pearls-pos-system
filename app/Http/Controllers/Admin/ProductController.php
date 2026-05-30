@@ -25,6 +25,8 @@ class ProductController extends Controller
             'ANT' => 'Anting',
             'BRS' => 'Bros',
             'GWG' => 'Giwang',
+            'LNT' => 'Liontin',
+            'KRG' => 'Kerang',
         ],
         'OLH' => [
             'TAS' => 'Tas',
