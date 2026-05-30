@@ -45,30 +45,52 @@ class Product extends Model
     }
 
     // Generate SKU otomatis
+    // Generate SKU otomatis
     public static function generateSku($category, $jewelryType = null, $priceTier = null): string
     {
         if ($category === 'perhiasan') {
-            // Format: PER-[JENIS]-[TIER]-[ID]
             $prefix = "PER-{$jewelryType}-{$priceTier}";
+
             $lastProduct = self::withTrashed()
-                ->where('category', 'perhiasan')
-                ->where('jewelry_type', $jewelryType)
-                ->where('price_tier', $priceTier)
-                ->orderBy('id', 'desc')
+                ->where('sku', 'like', "{$prefix}-%")
+                ->orderByRaw('CAST(SUBSTRING_INDEX(sku, "-", -1) AS UNSIGNED) DESC')
                 ->first();
 
-            $nextId = $lastProduct ? ($lastProduct->id + 1) : 1;
-            return "{$prefix}-" . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            if ($lastProduct) {
+                $lastNumber = intval(substr($lastProduct->sku, strrpos($lastProduct->sku, '-') + 1));
+                $nextId = $lastNumber + 1;
+            } else {
+                $nextId = 1;
+            }
+
+            $sku = "{$prefix}-" . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            while (self::withTrashed()->where('sku', $sku)->exists()) {
+                $nextId++;
+                $sku = "{$prefix}-" . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            }
+
+            return $sku;
 
         } else {
-            // Format: OL-LOP-[ID]
             $lastProduct = self::withTrashed()
-                ->where('category', 'oleh-oleh')
-                ->orderBy('id', 'desc')
+                ->where('sku', 'like', "OL-LOP-%")
+                ->orderByRaw('CAST(SUBSTRING_INDEX(sku, "-", -1) AS UNSIGNED) DESC')
                 ->first();
 
-            $nextId = $lastProduct ? ($lastProduct->id + 1) : 1;
-            return "OL-LOP-" . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            if ($lastProduct) {
+                $lastNumber = intval(substr($lastProduct->sku, strrpos($lastProduct->sku, '-') + 1));
+                $nextId = $lastNumber + 1;
+            } else {
+                $nextId = 1;
+            }
+
+            $sku = "OL-LOP-" . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            while (self::withTrashed()->where('sku', $sku)->exists()) {
+                $nextId++;
+                $sku = "OL-LOP-" . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            }
+
+            return $sku;
         }
     }
 
